@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reserve Private Viewing – Majestic Estates</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .fade-in { animation: fadeIn 1s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .dark .glass { background-color: rgba(255, 255, 255, 0.05); }
+    .glass {
+      backdrop-filter: blur(12px);
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 1rem;
+    }
+    .property-card {
+      transition: border 0.3s, background-color 0.3s;
+    }
+    .property-card:hover {
+      border-color: #facc15;
+    }
+    .selected-card {
+      border-color: #facc15;
+      background-color: rgba(250, 204, 21, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-white dark:bg-black text-gray-900 dark:text-white transition-all duration-300">
+
+  <!-- Header -->
+  <header class="bg-white dark:bg-gray-900 shadow sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-display font-semibold text-yellow-500">Jaya Construction</h1>
+      <button id="toggleMode" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+        <svg id="sun-icon" class="w-6 h-6 text-yellow-500 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M12 3v1m0 16v1m8.66-12.66l-.71.71M4.05 19.95l-.71-.71m16.66 0l-.71-.71M4.05 4.05l-.71.71M21 12h1M2 12H1M12 5a7 7 0 100 14 7 7 0 000-14z"></path>
+        </svg>
+        <svg id="moon-icon" class="w-6 h-6 text-gray-900 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative w-full h-[60vh]">
+    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80"
+         alt="Luxury Property" class="absolute inset-0 w-full h-full object-cover brightness-75">
+    <div class="absolute inset-0 flex items-center justify-center">
+      <div class="text-center text-white fade-in">
+        <h2 class="text-4xl md:text-5xl font-display font-bold mb-2">Reserve Your Private Viewing</h2>
+        <p class="text-lg opacity-80">Experience elegance and privacy at your convenience</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 py-12 grid md:grid-cols-3 gap-10">
+    
+    <!-- Form -->
+    <div class="md:col-span-2">
+      <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg glass fade-in">
+        <h3 class="text-2xl font-semibold mb-6 text-yellow-500">Schedule a Viewing</h3>
+        <form class="space-y-6" onsubmit="event.preventDefault(); alert('Viewing Reserved for ' + selectedProperty);">
+          
+          <div>
+            <label class="block mb-2 font-medium">Selected Property</label>
+            <input id="selected-property-field" type="text" readonly class="w-full px-4 py-3 rounded-lg border dark:bg-gray-900 dark:text-white dark:border-gray-700 bg-gray-100 cursor-not-allowed">
+          </div>
+
+          <div>
+            <label class="block mb-2 font-medium">Full Name</label>
+            <input type="text" required class="w-full px-4 py-3 rounded-lg border dark:bg-gray-900 dark:text-white dark:border-gray-700">
+          </div>
+          <div>
+            <label class="block mb-2 font-medium">Email Address</label>
+            <input type="email" required class="w-full px-4 py-3 rounded-lg border dark:bg-gray-900 dark:text-white dark:border-gray-700">
+          </div>
+          <div>
+            <label class="block mb-2 font-medium">Phone Number</label>
+            <input type="tel" required class="w-full px-4 py-3 rounded-lg border dark:bg-gray-900 dark:text-white dark:border-gray-700">
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block mb-2 font-medium">Preferred Date</label>
+              <input type="date" required class="w-full px-4 py-3 rounded-lg border dark:bg-gray-900 dark:text-white dark:border-gray-700">
+            </div>
+            <div>
+              <label class="block mb-2 font-medium">Preferred Time</label>
+              <input type="time" required class="w-full px-4 py-3 rounded-lg border dark:bg-gray-900 dark:text-white dark:border-gray-700">
+            </div>
+          </div>
+          <div>
+            <label class="block mb-2 font-medium">Special Requests</label>
+            <textarea rows="4" class="w-full px-4 py-3 rounded-lg border dark:bg-gray-900 dark:text-white dark:border-gray-700"></textarea>
+          </div>
+          <button type="submit" class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 px-6 rounded-lg text-lg transition">
+            Confirm Reservation
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Property Sidebar -->
+    <div>
+      <input type="text" placeholder="Search properties..." id="searchInput"
+             class="w-full mb-4 px-4 py-3 rounded-lg border dark:bg-gray-900 dark:text-white dark:border-gray-700"
+             oninput="filterProperties()">
+      <div id="propertyList" class="overflow-y-auto max-h-[600px] space-y-4 pr-1">
+        <!-- Demo Projects -->
+        <!-- Repeat these cards for 10 properties -->
+        <script>
+          const properties = [
+            { name: "Skyline Penthouse", location: "New York City", price: "$12,500,000", image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914" },
+            { name: "Oceanfront Villa", location: "Malibu", price: "$18,900,000", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c" },
+            { name: "Modern Hilltop Estate", location: "Los Angeles", price: "$10,700,000", image: "https://images.unsplash.com/photo-1572120360610-d971b9d7767c" },
+            { name: "Glass Mansion", location: "San Francisco", price: "$9,250,000", image: "https://images.unsplash.com/photo-1572120360626-d9dbde79b42b" },
+            { name: "Château Lumière", location: "French Riviera", price: "$22,300,000", image: "https://images.unsplash.com/photo-1600047509860-1d06ff8423b3" },
+            { name: "Dubai Marina Tower", location: "Dubai", price: "$14,000,000", image: "https://images.unsplash.com/photo-1600607680918-70cf231e0984" },
+            { name: "Bali Cliffside Retreat", location: "Bali", price: "$6,750,000", image: "https://images.unsplash.com/photo-1581093588401-9e8eb21a7f4a" },
+            { name: "Tokyo SkyLoft", location: "Tokyo", price: "$11,500,000", image: "https://images.unsplash.com/photo-1522156373667-4c7234bbd804" },
+            { name: "Swiss Alps Chalet", location: "Zermatt", price: "$19,800,000", image: "https://images.unsplash.com/photo-1605733160314-4b5567a5b28f" },
+            { name: "Santorini Cliff Home", location: "Greece", price: "$7,300,000", image: "https://images.unsplash.com/photo-1582719478250-06f34e3f8fa4" },
+          ];
+          let selectedProperty = "";
+          function renderProperties() {
+            const list = document.getElementById("propertyList");
+            list.innerHTML = "";
+            properties.forEach((prop, index) => {
+              const div = document.createElement("div");
+              div.className = "property-card glass border p-4 rounded-xl cursor-pointer";
+              div.innerHTML = `
+                <img src="${prop.image}?auto=format&fit=crop&w=600&q=80" class="rounded-lg mb-3 w-full h-36 object-cover" />
+                <h4 class="text-lg font-semibold">${prop.name}</h4>
+                <p class="text-sm text-gray-500 dark:text-gray-400">${prop.location}</p>
+                <p class="text-yellow-500 font-medium">${prop.price}</p>
+              `;
+              div.onclick = () => selectProperty(prop.name, div);
+              list.appendChild(div);
+            });
+          }
+          function selectProperty(name, element) {
+            selectedProperty = name;
+            document.getElementById("selected-property-field").value = name;
+            document.querySelectorAll(".property-card").forEach(card => card.classList.remove("selected-card"));
+            element.classList.add("selected-card");
+          }
+          function filterProperties() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const filtered = properties.filter(p => p.name.toLowerCase().includes(query) || p.location.toLowerCase().includes(query));
+            const list = document.getElementById("propertyList");
+            list.innerHTML = "";
+            filtered.forEach(prop => {
+              const div = document.createElement("div");
+              div.className = "property-card glass border p-4 rounded-xl cursor-pointer";
+              div.innerHTML = `
+                <img src="${prop.image}?auto=format&fit=crop&w=600&q=80" class="rounded-lg mb-3 w-full h-36 object-cover" />
+                <h4 class="text-lg font-semibold">${prop.name}</h4>
+                <p class="text-sm text-gray-500 dark:text-gray-400">${prop.location}</p>
+                <p class="text-yellow-500 font-medium">${prop.price}</p>
+              `;
+              div.onclick = () => selectProperty(prop.name, div);
+              list.appendChild(div);
+            });
+          }
+          window.onload = renderProperties;
+        </script>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Dark mode toggle
+    const toggle = document.getElementById("toggleMode");
+    const html = document.documentElement;
+    toggle.addEventListener("click", () => html.classList.toggle("dark"));
+  </script>
+</body>
+</html>
