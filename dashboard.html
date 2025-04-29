@@ -1,0 +1,3743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Admin Dashboard - Jaya Construction</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- PapaParse - CSV Parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+  <!-- SheetJS - Excel Parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+
+<style>
+  /* Prevent body overflow when sidebar is open */
+  body.sidebar-open {
+    overflow-x: hidden;
+  }
+
+  html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    }
+
+  /* Ensure elements don't overflow on small screens */
+    @media (max-width: 600px) {
+        .priceInput {
+            width: calc(100% - 40px); /* Make the price input take up most of the width */
+        }
+        
+        .deleteFloorBtn {
+            width: 50px; /* Limit width of delete button */
+            margin-left: 10px; /* Add some space between input and button */
+        }
+
+        .flex {
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+        }
+
+        .bg-gray-800 {
+            padding: 10px; /* Adjust padding to fit on smaller screens */
+        }
+
+        /* Ensure no horizontal overflow occurs */
+        .container {
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+    }
+
+    /* Prevent horizontal scroll if content is too wide */
+    body {
+        overflow-x: hidden;
+    }
+
+    /* Adjust the width of inputs and buttons to fit smaller screens */
+    input[type="number"], .deleteFloorBtn, .addFloorBtn {
+        max-width: 100%; /* Prevent them from exceeding container width */
+    }
+
+    #discountListContainer {
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .discount-card {
+      background-color: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s;
+    }
+
+    .discount-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .discount-info {
+      margin-bottom: 16px;
+    }
+
+    .discount-info div {
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    .discount-actions {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .discount-actions button {
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .discount-actions button.edit-discount {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .discount-actions button.edit-discount:hover {
+      background-color: #0056b3;
+    }
+
+    .discount-actions button.delete-discount {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .discount-actions button.delete-discount:hover {
+      background-color: #c82333;
+    }
+
+</style>
+
+</head>
+<body class="bg-gray-900 text-white">
+  <!-- Loader -->
+  <div id="loader" class="fixed inset-0 backdrop-blur-md bg-black/50 flex flex-col justify-center items-center z-50 transition-opacity duration-700">
+    <h1 class="text-5xl sm:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-pulse mb-4">
+      Jaya Construction
+    </h1>
+    
+    <p id="loaderText" class="text-gray-300 text-lg sm:text-2xl mt-2"></p>
+
+    <!-- Decorative Icons (sci-fi floating) -->
+    <div class="flex space-x-6 mt-8 animate-pulse">
+      <svg class="w-10 h-10 text-blue-400 animate-spin-slow" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path d="M12 2a10 10 0 00-7.07 17.07l14.14-14.14A9.956 9.956 0 0012 2z" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <svg class="w-10 h-10 text-pink-400 animate-spin-slow-reverse" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <svg class="w-10 h-10 text-purple-400 animate-spin-slow" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path d="M3 10h2l3 9 4-16 3 7h5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div> 
+
+  <!-- Particles.js Background -->
+  <div id="particles-js" class="absolute inset-0"></div>
+
+  <style>
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes spin-slow-reverse {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+  }
+  .animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+  }
+  .animate-spin-slow-reverse {
+    animation: spin-slow-reverse 10s linear infinite;
+  }
+
+  #particles-js {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
+  </style>
+
+  <!-- Add Particles.js Script -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0"></script>
+
+  <script>
+  const text = "Building Futures, Engineering Dreams...";
+  const loaderText = document.getElementById('loaderText');
+  let idx = 0;
+
+  function typeWriter() {
+    if (idx < text.length) {
+      loaderText.innerHTML += text.charAt(idx);
+      idx++;
+      setTimeout(typeWriter, 80); // Typing speed
+    }
+  }
+
+  window.addEventListener('load', () => {
+    typeWriter(); // start typing animation
+    
+    // Simulate Firestore Load Delay (replace with your real fetch event)
+    setTimeout(() => {
+      const loader = document.getElementById('loader');
+      loader.classList.add('opacity-0'); // Apply fade-out effect
+      setTimeout(() => loader.style.display = 'none', 700); // Hide loader after fade-out
+    }, 4500); // Simulate Firestore loading time (adjust as needed)
+  });
+
+  // Initialize Particles.js with a gradient-like color scheme for the lines
+  particlesJS("particles-js", {
+    particles: {
+      number: {
+        value: 200, // Number of particles
+        density: {
+          enable: true,
+          value_area: 800
+        }
+      },
+      shape: {
+        type: "circle", // Particle shape
+        stroke: {
+          width: 0,
+          color: "#ffffff"
+        }
+      },
+      opacity: {
+        value: 0.5,
+        random: true,
+        anim: {
+          enable: true,
+          speed: 1,
+          opacity_min: 0.1,
+          sync: false
+        }
+      },
+      size: {
+        value: 3,
+        random: true,
+        anim: {
+          enable: true,
+          speed: 4,
+          size_min: 0.1,
+          sync: false
+        }
+      },
+      line_linked: {
+        enable: true,
+        distance: 150,
+        color: {
+          value: "rgba(0, 255, 255, 0.5)", // Default cyan color for the lines
+          opacity: 0.5
+        },
+        opacity: 0.2,
+        width: 1
+      },
+      move: {
+        enable: true,
+        speed: 3,
+        direction: "none",
+        random: true,
+        straight: false,
+        out_mode: "out",
+        bounce: false
+      }
+    },
+    interactivity: {
+      detect_on: "canvas",
+      events: {
+        onhover: {
+          enable: true,
+          mode: "repulse"
+        },
+        onclick: {
+          enable: true,
+          mode: "push"
+        }
+      },
+      modes: {
+        repulse: {
+          distance: 100,
+          duration: 1
+        },
+        push: {
+          particles_nb: 4
+        }
+      }
+    },
+    retina_detect: true,
+    color: {
+      value: "#ffffff", // Default color for particles
+    }
+  });
+  </script>
+
+  <!-- Sidebar -->
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <div id="sidebar" class="bg-gray-800 text-white w-64 p-6 flex flex-col justify-between fixed inset-y-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:fixed">
+      
+      <!-- Close Button for Mobile -->
+      <button id="closeSidebarBtn" class="text-gray-400 hover:text-white absolute top-4 right-4 lg:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Sidebar Content -->
+      <div>
+        <!-- Logo -->
+        <div class="text-xl font-bold mb-8">
+          <span class="text-blue-500">Jaya</span> Construction
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="space-y-4">
+          <a href="#welcomeMessage" class="flex items-center text-gray-400 hover:text-blue-500">
+            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Dashboard
+          </a>
+          <a href="#customermenuscroll" class="flex items-center text-gray-400 hover:text-blue-500">
+            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Manage Customers
+          </a>
+          <a href="#projectuploadmenuscroll" class="flex items-center text-gray-400 hover:text-blue-500">
+            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M9 12h6m2 0a2 2 0 00-2-2h-6a2 2 0 000 4h6a2 2 0 002-2z" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Update/Upload Project Details
+          </a>
+          <a href="#projectsSection" class="flex items-center text-gray-400 hover:text-blue-500">
+            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M3 3h7v7H3V3zm11 0h7v7h-7V3zM3 14h7v7H3v-7zm11 0h7v7h-7v-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            View Projects
+          </a>
+          <a href="#flatManagerSection" class="flex items-center text-gray-400 hover:text-blue-500">
+            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Manage Flats
+          </a>
+          <a href="#liabilityManagerSection" class="flex items-center text-gray-400 hover:text-blue-500">
+            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M17 9V7a5 5 0 00-10 0v2H5v10h14V9h-2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Manage Liabilities
+          </a>
+          <a href="#equityManagerSection" class="flex items-center text-gray-400 hover:text-blue-500">
+            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M3 10h2l3 9 4-16 3 7h5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Manage Shareholders
+          </a>
+          <a href="#discountmenuscroll" class="flex items-center text-gray-400 hover:text-blue-500">
+            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L14 13.414V19a1 1 0 01-.447.894l-4 2.667A1 1 0 019 21v-7.586L3.293 6.707A1 1 0 013 6V4z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Manage Discounts
+          </a>
+        </nav>
+
+      </div>
+      
+    </div>
+
+    <!-- Main content area -->
+    <div id="content" class="flex-1 p-4 sm:p-6 transition-all duration-300 lg:ml-64 overflow-x-auto">
+      <!-- Hamburger Button (fixed on mobile) -->
+      <button id="hamburgerBtn" class="fixed top-4 right-4 z-50 p-2 bg-purple-600 rounded-full text-white hover:text-black lg:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>      
+
+      <!-- Top Bar -->
+      <div class="flex justify-between items-center mb-6 pr-16 sm:pr-6">
+        <div class="flex items-center">
+          <span id="welcomeMessage" class="text-2xl font-bold text-gray-100">Welcome</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <button class="text-gray-400 hover:text-blue-500" onclick="openEmailModal()">Emails</button>
+          <button class="text-gray-400 hover:text-blue-500" onclick="openSettings()">Settings</button>
+          <button id="logoutBtn" class="text-gray-400 hover:text-blue-500">Logout</button>
+          <!-- Open Modal Button -->
+          <button onclick="openNotificationModal()" class="fixed bottom-12 right-6 bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-full shadow-lg z-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+
+          <style>
+          @keyframes fade-in-up {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+          .animate-fade-in-up {
+            animation: fade-in-up 0.5s ease-out;
+          }
+          </style>
+        </div>
+      </div>
+
+
+      <!-- Main Content Section -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Widget 1: Total Customers -->
+        <div class="bg-gray-800 p-6 rounded-xl shadow-xl">
+          <h3 class="text-xl font-semibold text-gray-300">Total Customers</h3>
+          <p id="totalCustomers" class="text-3xl sm:text-4xl font-bold mt-4 text-blue-500 break-words whitespace-normal">...</p>
+        </div>
+
+        <!-- Widget 2: Active Projects -->
+        <div class="bg-gray-800 p-6 rounded-xl shadow-xl">
+          <h3 class="text-xl font-semibold text-gray-300">Active Projects</h3>
+          <p id="activeProjectsCount" class="text-3xl sm:text-4xl font-bold mt-4 text-yellow-500 break-words whitespace-normal">0</p>
+        </div>
+
+        <!-- Widget 3: Total Revenue -->
+        <div class="bg-gray-800 p-6 rounded-xl shadow-xl" id="totalRevenueWidget">
+          <h3 class="text-xl font-semibold text-gray-300">Total Revenue</h3>
+          <p id="totalRevenuetext" class="text-3xl sm:text-4xl font-bold mt-4 text-green-500 break-words whitespace-normal">₹0.00</p>
+        </div>
+
+        <!-- Widget: Total Assets -->
+        <div class="bg-gray-800 p-6 rounded-xl shadow-xl" id="totalAssetsWidget">
+          <h3 class="text-xl font-semibold text-gray-300">Total Assets</h3>
+          <p id="totalAssetsText" class="text-3xl sm:text-4xl font-bold mt-4 text-yellow-400 break-words whitespace-normal">₹0.00</p>
+        </div>
+
+        <!-- Widget: Total Flats Sold -->
+        <div class="bg-gray-800 p-6 rounded-xl shadow-xl" id="flatsSoldWidget">
+          <h3 class="text-xl font-semibold text-gray-300">Flat Sales Overview</h3>
+          <div class="mt-4 space-y-2">
+            <p class="text-2xl font-bold text-green-400">✅ <span id="totalFlatsSold">0</span></p>
+            <p class="text-2xl font-bold text-yellow-400">🟡 <span id="totalFlatsAvailable">0</span></p>
+          </div>
+        </div> 
+        <!-- Widget: Total Liabilities -->
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-md text-center my-6">
+          <h2 class="text-2xl font-bold mb-4 text-white">📊 Company Overview</h2>
+          
+          <div class="flex flex-col md:flex-row justify-center items-center gap-6">
+            
+            <div>
+              <h3 class="text-lg text-gray-300 mb-1">Total Liabilities</h3>
+              <p id="totalLiabilitiesCount" class="text-3xl font-extrabold text-blue-400">📋 0</p> <!-- Updated ID for liability count -->
+            </div>
+        
+            <div class="h-10 w-px bg-gray-600 hidden md:block"></div> <!-- Vertical divider for desktop -->
+        
+            <div>
+              <h3 class="text-lg text-gray-300 mb-1">Total Shareholders</h3>
+              <p id="totalShareholdersCount" class="text-3xl font-extrabold text-green-400">👥 0</p> <!-- Updated ID for shareholder count -->
+            </div>
+        
+          </div>
+        </div>
+        
+        
+      </div>
+
+      <section id ="customermenuscroll" class="p-6 bg-white shadow-md rounded-lg mt-8">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Manage Customers</h2>
+        <div class="relative mb-6">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search customers..."
+            class="w-full px-5 py-3 text-lg bg-gray-800 text-gray-200 border border-gray-300 rounded-full shadow-md focus:outline-none focus:ring-4 focus:ring-blue-500 focus:border-transparent transition duration-300 ease-in-out"
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 pointer-events-none"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103 10.5a7.5 7.5 0 0013.15 6.15z" />
+          </svg>
+        </div>
+        
+
+        <!-- Add/Edit Form -->
+        <form id="customerForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <input type="hidden" id="customerId" />
+          <input id="customerName" type="text" placeholder="Name" class="bg-gray-800 text-gray-200 border-2 p-2 rounded" required />
+          <input id="customerEmail" type="email" placeholder="Email" class="bg-gray-800 text-gray-200 border-2 p-2 rounded" required />
+          <button type="submit" class="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">Save Customer</button>
+        </form>
+        <!-- Upload Section -->
+        <div class="mb-6" id="uploadContainer">
+          <label for="customerFileUpload" class="block mb-2 text-sm font-medium text-gray-400">Upload Customers File (.csv or Excel)</label>
+          
+          <input
+            type="file"
+            id="customerFileUpload"
+            accept=".csv, .xls, .xlsx"
+            class="block w-full text-sm text-gray-200 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
+          />
+
+          <!-- Validation Message -->
+          <p id="fileValidationMsg" class="text-sm mt-2 text-red-500 hidden">Invalid file type. Please upload a CSV or Excel file.</p>
+
+          <!-- Progress Bar -->
+          <div class="mt-4 hidden" id="fileUploadProgressWrapper">
+            <div class="w-full bg-gray-600 h-2 rounded overflow-hidden">
+              <div id="fileUploadProgressBar" class="bg-blue-500 h-2 w-0 transition-all duration-300 ease-in-out"></div>
+            </div>
+            <p class="text-xs text-gray-400 mt-1" id="fileProgressText">Uploading...</p>
+          </div>
+
+          <!-- Success Message -->
+          <div id="uploadSuccess" class="hidden mt-4 flex items-center text-green-500 text-sm font-medium">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Customers uploaded successfully!
+          </div>
+        </div>
+      
+        <!-- Customers Table -->
+        <div class="overflow-x-auto max-h-[500px] overflow-y-auto rounded border border-gray-700">
+          <!-- Delete Controls -->
+          <div class="flex gap-4 mb-4 p-3 bg-gray-800 sticky top-0 z-6">
+            <button id="deleteSelectedBtn" class="bg-red-500 text-white px-4 py-2 rounded">Delete Selected</button>
+            <button id="deleteAllBtn" class="bg-red-600 text-white px-4 py-2 rounded">Delete All</button>
+          </div>
+          <!-- Scrollable Table Container -->
+          <div class="overflow-auto max-h-[400px] border border-gray-700 rounded">
+            <table class="min-w-full table-auto text-left">
+              <thead class="bg-gray-800 text-gray-300 uppercase text-sm sticky top-0 z-6">
+                <tr>
+                  <th class="p-3 w-10">
+                    <input type="checkbox" id="selectAll" />
+                  </th>
+                  <th class="p-3 min-w-[150px]">Name</th>
+                  <th class="p-3 min-w-[200px]">Email</th>
+                  <th class="p-3 min-w-[180px]">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="customersTableBody" class="text-gray-200 bg-gray-900 divide-y divide-gray-800">
+                <!-- Rows go here -->
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </section>
+      <section id="projectuploadmenuscroll" class="p-6 bg-gray-900 shadow-md rounded-lg mt-8">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-100">Upload Project Details</h2>
+        
+        <!-- Project Form -->
+        <form id="projectForm" class="space-y-6">
+            <!-- Project Name and Location -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input id="projectName" type="text" placeholder="Project Name" class="w-full p-4 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                <input id="location" type="text" placeholder="Location" class="w-full p-4 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+            </div>
+    
+            <!-- Bedrooms, Bathrooms, Floor Area -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input id="bedrooms" type="number" placeholder="Bedrooms" class="w-full p-4 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                <input id="bathrooms" type="number" placeholder="Bathrooms" class="w-full p-4 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                <input id="floorArea" type="number" placeholder="Floor Area (sq. ft.)" class="w-full p-4 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+            </div>
+    
+            <!-- Description (Markdown Editor) -->
+            <div class="mb-6">
+                <label for="description" class="text-gray-100">Description (Markdown)</label>
+                <textarea id="description" class="w-full p-4 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" rows="5" placeholder="Enter project description in Markdown format" required></textarea>
+            </div>
+    
+            <!-- Features Picker (Multiple Selection) -->
+            <div class="mb-6">
+              <label for="features" class="text-gray-100">Select Features</label>
+              <select id="features" multiple class="w-full p-4 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="pool">Swimming Pool</option>
+                  <option value="gym">Gym</option>
+                  <option value="garage">Garage</option>
+                  <option value="garden">Garden</option>
+                  <option value="security">Security System</option>
+                  <option value="balcony">Balcony</option>
+                  <!-- You can add more options here -->
+              </select>
+            </div>
+
+    
+            <!-- Media Upload -->
+            <div class="mb-6">
+                <label for="mediaUpload" class="text-gray-100">Upload Images/Videos</label>
+                <input id="mediaUpload" type="file" accept="image/*,video/*" multiple class="w-full p-4 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+    
+            <!-- Media Preview -->
+            <div id="mediaPreview" class="flex flex-wrap gap-4 mb-6"></div>
+    
+            <!-- Progress Bar -->
+            <div id="progressBarContainer" class="hidden">
+                <p class="text-gray-100">Uploading...</p>
+                <div class="w-full bg-gray-700 rounded-full h-2">
+                    <div id="progressBar" class="bg-blue-500 h-2 rounded-full" style="width: 0;"></div>
+                </div>
+            </div>
+    
+            <!-- Submit Button -->
+            <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition duration-300 ease-in-out">Upload Project</button>
+        </form>
+    </section>  
+    <section id="projectsSection" class="p-8 bg-gray-900 text-white">
+      <h2 class="text-3xl font-semibold mb-6 text-center text-gray-300">Our Premium Projects</h2>
+      <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 h-[700px] overflow-y-auto bg-gray-900 p-6 rounded-xl shadow-lg">
+        <!-- Project Cards will be injected here -->
+      </div>
+      
+
+      <!-- Update Modal -->
+      <div id="updateModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden justify-center items-center z-50">
+        <div class="bg-gray-900 p-10 rounded-xl shadow-xl max-w-xl w-full relative max-h-screen overflow-y-auto">
+          <button onclick="closeUpdateModal()" class="absolute top-3 right-3 text-white text-2xl">&times;</button>
+          <h3 class="text-3xl font-semibold text-gray-100 text-center mb-6">Update Project</h3>
+
+          <form id="updateForm">
+            <div class="space-y-4">
+              <!-- Project Name -->
+              <div class="flex flex-col">
+                <label for="updateName" class="text-lg text-gray-300">Project Name</label>
+                <input type="text" id="updateName" class="w-full p-4 bg-gray-800 text-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Enter project name" required />
+              </div>
+
+              <!-- Location -->
+              <div class="flex flex-col">
+                <label for="updateLocation" class="text-lg text-gray-300">Location</label>
+                <input type="text" id="updateLocation" class="w-full p-4 bg-gray-800 text-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Enter location" required />
+              </div>
+
+              <!-- Bedrooms -->
+              <div class="flex flex-col">
+                <label for="updateBedrooms" class="text-lg text-gray-300">Bedrooms</label>
+                <input type="number" id="updateBedrooms" class="w-full p-4 bg-gray-800 text-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Enter number of bedrooms" required />
+              </div>
+
+              <!-- Bathrooms -->
+              <div class="flex flex-col">
+                <label for="updateBathrooms" class="text-lg text-gray-300">Bathrooms</label>
+                <input type="number" id="updateBathrooms" class="w-full p-4 bg-gray-800 text-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Enter number of bathrooms" required />
+              </div>
+
+              <!-- Floor Area -->
+              <div class="flex flex-col">
+                <label for="updateFloorArea" class="text-lg text-gray-300">Floor Area</label>
+                <input type="number" id="updateFloorArea" class="w-full p-4 bg-gray-800 text-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Enter floor area" required />
+              </div>
+
+              <!-- Description -->
+              <div class="flex flex-col">
+                <label for="updateDescription" class="text-lg text-gray-300">Description</label>
+                <textarea id="updateDescription" class="w-full p-4 bg-gray-800 text-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Project description"></textarea>
+              </div>
+
+              <!-- Image Upload -->
+              <div class="flex flex-col">
+                <label for="updateImage" class="text-lg text-gray-300">Project Image</label>
+                <input type="file" id="updateImage" class="w-full p-4 bg-gray-800 text-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-600" accept="image/*" />
+                <div id="updateImagePreview" class="mt-4 flex justify-center max-h-48 overflow-hidden rounded-lg shadow-lg">
+                  <!-- Image preview will be injected here -->
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="flex justify-between mt-6">
+                <button type="submit" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-600">
+                  Update Project
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+    <!-- ⚙️ Flat Management Panel -->
+    <section class="p-10 bg-gray-950 text-white" id="flatManagerSection">
+      <h2 class="text-3xl font-bold text-blue-400 mb-8">🏘️ Manage Flats</h2>
+
+      <div class="mb-6">
+        <input 
+          id="projectSearch" 
+          type="text" 
+          placeholder="🔍 Search Projects..." 
+          class="w-full p-4 rounded-2xl bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg"
+        />
+      </div>      
+
+      <!-- Filter Section -->
+      <div class="flex justify-between items-center mb-6">
+        <button id="filterSold" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+          Show Only Unsold Flats
+        </button>      
+        <div class="text-lg font-semibold text-white" id="totalRevenue">Total Stock Value: ₹ 0</div>
+      </div>
+
+      <!-- Flats List -->
+      <div id="flatManagerContainer" class="space-y-10 h-[700px] overflow-y-auto bg-gray-900 p-6 rounded-xl shadow-lg"></div>
+
+    </section>
+    <!-- 📄 Liability Management Panel -->
+    <section class="p-10 bg-gray-950 text-white" id="liabilityManagerSection">
+      <h2 class="text-3xl font-bold text-pink-400 mb-8">📉 Manage Liabilities</h2>
+
+      <!-- Total Liability Display -->
+      <div class="text-xl font-semibold text-gray-400 mb-6">
+        <span id="totalLiabilities">💰 Total Liabilities: $0</span>
+      </div>
+
+      <!-- Specific Search Bar for Liabilities -->
+      <div class="mb-6">
+        <input
+          id="liabilitySearchBar"
+          type="text"
+          placeholder="🔍 Search by User or Description"
+          class="w-full p-3 bg-gray-800 rounded-xl text-white"
+        />
+      </div>
+
+      <!-- Form to Add Liability -->
+      <form id="addLiabilityForm" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+        <input required id="user" type="text" placeholder="👤 User" class="p-3 bg-gray-800 rounded-xl" />
+        <input required id="amount" type="number" placeholder="💰 Amount" class="p-3 bg-gray-800 rounded-xl" />
+        <input required id="dueDate" type="date" class="p-3 bg-gray-800 rounded-xl" />
+        <input required id="description" type="text" placeholder="📝 Description" class="p-3 bg-gray-800 rounded-xl" />
+        <button type="submit" class="bg-pink-600 hover:bg-pink-700 rounded-xl text-white px-4 py-2">➕ Add</button>
+      </form>
+
+      <!-- Filter + Sort Controls -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div class="space-x-2">
+          <button id="filterAll" class="filterBtn bg-gray-700 px-3 py-2 rounded">All</button>
+          <button id="filterPaid" class="filterBtn bg-green-700 px-3 py-2 rounded">Paid</button>
+          <button id="filterUnpaid" class="filterBtn bg-red-700 px-3 py-2 rounded">Unpaid</button>
+        </div>
+        <select id="sortLiabilities" class="bg-gray-800 text-white p-2 rounded-xl">
+          <option value="createdAt">🕓 Created (Newest)</option>
+          <option value="dueDate">📅 Due Date (Soonest)</option>
+          <option value="amount">💰 Amount (High to Low)</option>
+          <option value="paidStatus">✔️ Paid First</option>
+        </select>
+      </div>
+
+      <!-- List of Liabilities -->
+      <div id="liabilityList" class="space-y-4 h-[700px] overflow-y-auto bg-gray-900 p-6 rounded-xl shadow-lg"></div>
+    </section>
+
+    <!-- 📈 Shareholders' Equity Panel -->
+    <section class="p-10 bg-gray-950 text-white" id="equityManagerSection">
+      <h2 class="text-3xl font-bold text-green-400 mb-8">📈 Manage Shareholders' Equity</h2>
+
+      <!-- Form to Add Equity -->
+      <form id="addEquityForm" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+        <input required id="equityUser" type="text" placeholder="👤 Shareholder" class="p-3 bg-gray-800 rounded-xl" />
+        <input required id="equityAmount" type="number" placeholder="💵 Amount" class="p-3 bg-gray-800 rounded-xl" />
+        <input required id="equityDate" type="date" class="p-3 bg-gray-800 rounded-xl" />
+        <input required id="equityDescription" type="text" placeholder="📝 Description" class="p-3 bg-gray-800 rounded-xl" />
+        <button type="submit" class="bg-green-600 hover:bg-green-700 rounded-xl text-white px-4 py-2">➕ Add</button>
+      </form>
+
+      <!-- Filter + Sort Controls -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div class="space-x-2">
+          <button id="filterEquityAll" class="equityFilterBtn bg-gray-700 px-3 py-2 rounded">All</button>
+          <button id="filterEquityActive" class="equityFilterBtn bg-green-700 px-3 py-2 rounded">Active</button>
+          <button id="filterEquityInactive" class="equityFilterBtn bg-red-700 px-3 py-2 rounded">Inactive</button>
+        </div>
+        <div class="flex gap-2 items-center">
+          <input id="equitySearchBar" type="text" placeholder="🔍 Search equity..." class="bg-gray-800 text-white p-2 rounded-xl" />
+          <select id="sortEquities" class="bg-gray-800 text-white p-2 rounded-xl">
+            <option value="createdAt">🕓 Created (Newest)</option>
+            <option value="date">📅 Date</option>
+            <option value="amount">💵 Amount (High to Low)</option>
+            <option value="status">✅ Active First</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Total Equity -->
+      <div id="totalEquity" class="text-xl font-semibold text-green-300 mb-4">💵 Total Equity: ₹0</div>
+
+      <!-- List of Shareholders' Equity -->
+      <div id="equityList" class="space-y-4 h-[700px] overflow-y-auto bg-gray-900 p-6 rounded-xl shadow-lg"></div>
+
+    </section>
+
+    <!-- Discount Section -->
+    <div id="discountmenuscroll" class="discount-section bg-gray-800 w-full p-6 rounded-xl shadow-xl">
+      <!-- Header with Luxe Styling -->
+      <div class="w-full flex justify-center mb-10">
+        <h3 class="text-4xl font-extrabold text-white text-center tracking-wide bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg">
+          ✨ Discount Management ✨
+        </h3>
+      </div>
+
+      <!-- Discount Filter -->
+      <div id="filterContainer" class="space-y-6 p-8 bg-gradient-to-r from-indigo-600 to-purple-700 rounded-lg shadow-xl text-white">
+        <h2 class="text-3xl font-extrabold text-center mb-6">Filter Discounts</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Project Name -->
+          <div class="relative">
+            <input type="text" id="filterProject" placeholder="Filter by Project Name" class="block w-full px-6 py-3 bg-white text-gray-700 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition duration-200 ease-in-out">
+            <label for="filterProject" class="absolute bottom-12 left-4 text-yellow-300">Project Name</label>
+          </div>
+
+          <!-- Flat Label -->
+          <div class="relative">
+            <input type="text" id="filterFlat" placeholder="Filter by Flat Label" class="block w-full px-6 py-3 bg-white text-gray-700 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition duration-200 ease-in-out">
+            <label for="filterFlat" class="absolute bottom-12 left-4 text-yellow-300">Flat Label</label>
+          </div>
+
+          <!-- Customer Name -->
+          <div class="relative">
+            <input type="text" id="filterCustomer" placeholder="Filter by Customer Name" class="block w-full px-6 py-3 bg-white text-gray-700 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition duration-200 ease-in-out">
+            <label for="filterCustomer" class="absolute bottom-12 left-4 text-yellow-300">Customer Name</label>
+          </div>
+
+          <!-- Discount Amount -->
+          <div class="relative">
+            <input type="number" id="filterDiscountAmount" placeholder="Filter by Discount Amount" class="block w-full px-6 py-3 bg-white text-gray-700 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition duration-200 ease-in-out">
+            <label for="filterDiscountAmount" class="absolute bottom-12 left-4 text-yellow-300">Discount Amount</label>
+          </div>
+
+          <!-- Timestamp -->
+          <div class="relative">
+            <input type="date" id="filterTimestamp" placeholder="Filter by Date" class="block w-full px-6 py-3 bg-white text-gray-700 rounded-lg shadow-md focus:ring-2 focus:ring-indigo-500 transition duration-200 ease-in-out">
+            <label for="filterTimestamp" class="absolute bottom-12 left-4 text-yellow-300">Date</label>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-between mt-8">
+          <button id="applyFiltersBtn" class="px-6 py-3 bg-indigo-400 text-white rounded-full hover:bg-indigo-700 transition duration-300 ease-in-out shadow-2xl flex items-center space-x-2">
+            <span>Apply Filters</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <button id="clearFiltersBtn" class="px-6 py-3 bg-transparent text-yellow-300 border-2 border-yellow-300 rounded-full hover:bg-indigo-600 hover:text-white transition duration-300 ease-in-out shadow-md flex items-center space-x-2">
+            <span>Clear Filters</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Container -->
+      <div class="space-y-6 bg-gray-900 p-8 rounded-2xl shadow-2xl ">
+        <h2 class="text-3xl font-extrabold text-center mb-6">Discount application Form</h2>
+
+        <!-- Select Project -->
+        <div class="flex flex-col">
+          <label for="projectSelect" class="text-gray-300 mb-2 font-semibold">Select Project</label>
+          <select id="projectSelect" class="bg-gray-800 text-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400">
+            <option value="">Select Project</option>
+            <!-- Dynamic projects will be loaded here -->
+          </select>
+        </div>
+
+        <!-- Select Flat -->
+        <div class="flex flex-col">
+          <label for="flatSelect" class="text-gray-300 mb-2 font-semibold">Select Flat</label>
+          <select id="flatSelect" class="bg-gray-800 text-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400" disabled>
+            <option value="">Select Flat</option>
+            <!-- Dynamic flats will be loaded here -->
+          </select>
+        </div>
+
+        <!-- Select Customer -->
+        <div class="flex flex-col">
+          <label for="customerSelect" class="text-gray-300 mb-2 font-semibold">Select Customer</label>
+          <select id="customerSelect" class="bg-gray-800 text-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400">
+            <option value="">Select Customer</option>
+            <!-- Dynamic customers will be loaded here -->
+          </select>
+        </div>
+
+        <!-- Units for Discount -->
+        <div class="flex flex-col">
+          <label for="discountUnits" class="text-gray-300 mb-2 font-semibold">Units for Discount</label>
+          <input type="number" id="discountUnits" class="bg-gray-800 text-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400" placeholder="Number of Units" />
+        </div>
+
+        <!-- Discount Amount -->
+        <div class="flex flex-col">
+          <label for="discountAmount" class="text-gray-300 mb-2 font-semibold">Discount Amount</label>
+          <input type="number" id="discountAmount" class="bg-gray-800 text-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400" placeholder="Enter Discount Amount" />
+        </div>
+
+        <!-- Apply Discount Button -->
+        <button id="applyDiscountBtn" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-all duration-300">
+          Apply Discount
+        </button>
+
+      </div>
+
+      <h2 class="text-3xl font-semibold mt-10 mb-6 text-center text-gray-300">View all Discounts</h2>
+      <!-- Discounts List -->
+      <!-- Scrollable Discounts List -->
+      <div id="discountListContainer" class="mt-10 max-w-5xl mx-auto h-[750px] overflow-y-auto bg-gray-900 p-6 rounded-xl shadow-lg">
+        <!-- Discounts will appear here -->
+      </div>
+      <!-- Edit Discount Modal -->
+      <div id="editDiscountModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-gray-800 p-6 rounded-xl shadow-lg w-96 space-y-4">
+          <h2 class="text-xl text-white font-bold mb-4">Edit Discount</h2>
+          <div class="flex flex-col">
+            <label for="editDiscountUnits" class="text-gray-300 mb-2">Discount Units:</label>
+            <input type="number" id="editDiscountUnits" name="discountUnits" class="bg-gray-700 text-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400" />
+          </div>
+          <div class="flex space-x-4 mt-4">
+            <button id="saveDiscountBtn" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-semibold">Save</button>
+            <button id="cancelEditBtn" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-semibold">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-center py-4 w-full bottom-0 left-0 z-50">
+      <p class="text-gray-400">© 2023 Jaya Construction. All rights reserved.</p>
+      <p class="text-gray-400">Developed by Prowhiz</p>
+    </footer>    
+    </div>
+  </div>
+</div>
+  
+
+  <!-- Logout Animation -->
+  <div id="logoutAnimation" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid"></div>
+    <div class="text-white mt-4">Logging out...</div>
+  </div>
+  <div id="goodbyeMessage" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div class="text-white">Goodbye! See you soon.</div>
+  </div>
+
+
+  <script>
+    // Toggle the sidebar visibility on hamburger button click
+    document.getElementById('hamburgerBtn').addEventListener('click', function() {
+      const sidebar = document.getElementById('sidebar');
+      const content = document.getElementById('content');
+      const body = document.body;
+      
+      sidebar.classList.toggle('-translate-x-full'); // Hide or show sidebar
+      body.classList.toggle('sidebar-open'); // Prevent overflow when sidebar is open
+    });
+
+    // Close the sidebar when the close button inside the sidebar is clicked
+    document.getElementById('closeSidebarBtn').addEventListener('click', function() {
+      const sidebar = document.getElementById('sidebar');
+      const body = document.body;
+      
+      sidebar.classList.add('-translate-x-full'); // Hide the sidebar
+      body.classList.remove('sidebar-open'); // Allow overflow when sidebar is closed
+    });
+
+    // Close the sidebar when clicking outside of it
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const hamburger = document.getElementById('hamburgerBtn');
+      
+      if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+        const body = document.body;
+        sidebar.classList.add('-translate-x-full'); // Hide sidebar
+        body.classList.remove('sidebar-open'); // Allow overflow when sidebar is closed
+      }
+    });
+  </script>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center overflow-y-auto hidden">
+    <div class="bg-gray-800 p-6 rounded-2xl shadow-2xl w-full max-w-md mx-4 mt-10 mb-10 max-h-screen overflow-y-auto">
+      <h3 class="text-2xl font-bold text-white mb-6 text-center">Account Settings</h3>
+
+      <!-- Profile Picture Preview -->
+      <div class="flex justify-center mb-6 relative">
+        <img id="profileImg" class="rounded-full w-24 h-24 object-cover border-4 border-white shadow-lg" src="https://st2.depositphotos.com/1006318/5909/v/450/depositphotos_59094701-stock-illustration-businessman-profile-icon.jpg" />
+        <!-- Delete button with white trash can icon -->
+        <button id="deleteProfilePicBtn" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-transparent p-1 rounded-full hidden hover:opacity-80">
+          <!-- Inline SVG for white trash can icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M3 6h18v2H3V6zm2 3h14v13H5V9zm3 2v9h2v-9H8zm4 0v9h2v-9h-2zm4 0v9h2v-9h-2z"/>
+          </svg>
+        </button>
+
+      </div>
+
+      <!-- Container to Center the Button -->
+      <div class="center-container">
+        <button id="linkGoogleBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+          Link Google Account
+        </button>
+      </div>
+
+      <!-- Settings Form -->
+      <form id="settingsForm" class="space-y-4">
+        <div>
+          <label for="name" class="block text-sm text-gray-300 mb-1">Name</label>
+          <input type="text" id="name" name="name" class="w-full p-3 bg-gray-900 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your Name" required />
+        </div>
+        <div>
+          <label for="email" class="block text-sm text-gray-300 mb-1">Email</label>
+          <input type="email" id="email" name="email" class="w-full p-3 bg-gray-900 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your Email" required />
+        </div>
+        <div>
+          <label for="phone" class="block text-sm text-gray-300 mb-1">Phone Number</label>
+          <input type="text" id="phone" name="phone" class="w-full p-3 bg-gray-900 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your Phone Number" />
+        </div>
+        <div>
+          <label for="address" class="block text-sm text-gray-300 mb-1">Address</label>
+          <input type="text" id="address" name="address" class="w-full p-3 bg-gray-900 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your Address" />
+        </div>
+        <div>
+          <label for="profilePic" class="block text-sm text-gray-300 mb-1">Profile Picture</label>
+          <input type="file" id="profilePic" name="profilePic" accept="image/*" class="w-full p-3 bg-gray-900 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-between items-center pt-4">
+          <button type="button" class="text-sm text-gray-400 hover:text-red-400" onclick="closeSettings()">Cancel</button>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-200">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<style>
+  /* Centering the Button */
+.center-container {
+  display: flex;
+  justify-content: center;  /* Center horizontally */
+}
+
+/* Optional: Button Styling */
+#linkGoogleBtn {
+  background-color: #3498db;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#linkGoogleBtn:hover {
+  background-color: #195f8e;
+}
+
+/* This ensures that the delete button is only visible when hovering over the profile image container */
+.relative:hover #deleteProfilePicBtn {
+  display: block;
+}
+
+</style>
+
+<!-- Email Modal HTML -->
+<div id="emailModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+  <div class="bg-gray-800 p-6 rounded-xl shadow-xl w-96">
+    <h3 class="text-2xl font-semibold text-gray-300 mb-4">Send Email</h3>
+    <form id="emailForm">
+      <div class="mb-4">
+        <label for="customerSelect" class="block text-sm text-gray-400">Select Customer</label>
+        <select id="customerSelect" class="w-full p-3 bg-gray-900 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="all">Send to All Customers</option>
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <label for="emailSubject" class="block text-sm text-gray-400">Subject</label>
+        <input type="text" id="emailSubject" class="w-full p-3 bg-gray-900 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Email Subject" required />
+      </div>
+
+      <div class="mb-4">
+        <label for="emailBody" class="block text-sm text-gray-400">Body</label>
+        <textarea id="emailBody" class="w-full p-3 bg-gray-900 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Email Body" required></textarea>
+      </div>
+
+      <div class="flex justify-between">
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-xl">Send</button>
+        <!-- Button to close the modal -->
+        <button type="button" id="closeEmailBtn" class="text-white bg-red-600 px-4 py-2 rounded-md" onclick="closeEmailModal()">Close</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+  }
+
+  #emailModal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #emailModal.hidden {
+    display: none !important;
+  }
+</style>
+
+<!-- Mobile Warning Modal -->
+<div id="mobileWarningModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 transition-opacity duration-300">
+  <div class="bg-white p-6 rounded-2xl text-center shadow-xl max-w-sm w-full">
+    <h2 class="text-2xl font-bold text-red-500 mb-4">⚠️ Desktop Required</h2>
+    <p class="text-gray-700 mb-6">Please open this site on a <b>Desktop</b> to update your profile settings.</p>
+    <button onclick="closeMobileWarningModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-bold">
+      Okay
+    </button>
+  </div>
+</div>
+
+<!-- Modal HTML -->
+<div id="linkModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div class="bg-white p-6 rounded-lg shadow-lg">
+    <p>Linking your Google Account...</p>
+    <div id="loadingSpinner" class="loader mt-4"></div> <!-- Spinner for loading -->
+  </div>
+</div>
+
+<style>
+  .loader {
+  border: 4px solid #f3f3f3; /* Light gray */
+  border-top: 4px solid #3498db; /* Blue color */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+</style>
+
+<!-- Notification Modal -->
+<div id="notificationModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-50">
+  <div class="bg-white rounded-3xl shadow-2xl p-8 w-96 animate__animated animate__fadeIn">
+    <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Send a Notification</h2>
+    
+    <!-- Title Input -->
+    <input id="notificationTitle" type="text" placeholder="Title" class="w-full p-3 rounded-xl mb-4 text-gray-800 border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
+
+    <!-- Body Input -->
+    <textarea id="notificationBody" placeholder="Notification body..." class="w-full p-3 rounded-xl mb-4 text-gray-800 border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:outline-none transition" rows="4"></textarea>
+
+    <!-- Optional Image Upload -->
+    <input id="notificationImage" type="file" accept="image/*" class="w-full mb-4 text-gray-600" />
+
+    <!-- Buttons -->
+    <div class="flex justify-between mt-4">
+      <button onclick="sendNotification()" class="w-5/12 bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-xl transition-all">Send</button>
+      <button onclick="closeNotificationModal()" class="w-5/12 bg-gray-300 hover:bg-gray-400 text-gray-800 py-3 px-4 rounded-xl transition-all">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Close -->
+<style>
+  .animate__fadeIn {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+    0% { opacity: 0; transform: scale(0.9); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+</style>
+
+<script type="module">
+  // Import the Firebase modules you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc, collection, addDoc, updateDoc, deleteDoc, getDocs, writeBatch,query,deleteField,orderBy,serverTimestamp} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+  import { signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+  import { GoogleAuthProvider, linkWithPopup } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+  import { onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+  import { marked } from 'https://cdn.jsdelivr.net/npm/marked@4.0.0/lib/marked.esm.js';
+  // Firebase Cloud Messaging (FCM)
+  import { getMessaging, getToken, onMessage} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging.js";
+  
+
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCW3vzR1V7ZnkM389ZQFsM1WD3B4kO3tp4",
+    authDomain: "jaya-construction-fe058.firebaseapp.com",
+    databaseURL: "https://jaya-construction-fe058-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "jaya-construction-fe058",
+    storageBucket: "jaya-construction-fe058.appspot.com",
+    messagingSenderId: "842329832873",
+    appId: "1:842329832873:web:d2306f734c82ce42e618b8",
+    measurementId: "G-38MS1QF3V5"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const storage = getStorage(app);
+  const provider = new GoogleAuthProvider();
+  const messaging = getMessaging(app);
+
+  // 🔒 AUTH CHECK BEFORE ANYTHING RENDERS
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "admin.html";
+    }
+  });
+
+// Modal functionality and Google account linking
+document.getElementById('linkGoogleBtn').addEventListener('click', () => {
+  // Show the modal and loading spinner
+  document.getElementById('linkModal').classList.remove('hidden');
+  showLoader();  // Show a loader while the process is ongoing
+
+  // Ensure the user is signed in before linking
+  if (auth.currentUser) {
+    // Linking Google account with Firebase Auth
+    linkWithPopup(auth.currentUser, provider)
+      .then(async (result) => {
+        console.log("Google account linked!");
+        
+        // After linking, write the necessary data to Firestore in 'googleAuthUsers' collection
+        const user = result.user;
+
+        // Add or update the user's information in Firestore
+        await addUserToFirestore(user);
+
+        // Hide the modal after success and show a success message
+        document.getElementById('linkModal').classList.add('hidden');
+        hideLoader(); // Hide the loader after process completion
+        showToast("Google account linked and your info is saved!");
+      })
+      .catch((error) => {
+        console.error("Error linking Google account:", error);
+        // Hide the modal if an error occurs
+        document.getElementById('linkModal').classList.add('hidden');
+        hideLoader(); // Hide loader
+        showError("Error linking your Google account. Please try again.");
+      });
+  } else {
+    console.log("No user signed in.");
+    document.getElementById('linkModal').classList.add('hidden');
+    hideLoader(); // Hide loader
+    showError("No user is signed in.");
+  }
+});
+
+// Function to add or update the user's data in Firestore
+async function addUserToFirestore(user) {
+  const userRef = doc(db, "googleAuthUsers", user.uid); // Use user UID as document ID
+
+  // Set the document data
+  await setDoc(userRef, {
+    email: user.email,
+    displayName: user.displayName || "", // Optional field
+    photoURL: user.photoURL || "", // Optional field
+    createdAt: serverTimestamp(), // Timestamp when the user was created
+    lastLogin: serverTimestamp(), // Set the last login time
+    role: "user" // Default role, can be updated if needed
+  });
+}
+
+// Helper function to show success toast message
+function showToast(message) {
+  // You can use your custom toast notification library, e.g., Toastify, or simple alert
+  alert(message);
+}
+
+// Helper function to show error messages
+function showError(message) {
+  // Show an error message (using an alert for simplicity)
+  alert(message);
+}
+
+// Helper function to show a loading indicator
+function showLoader() {
+  // Show the loading spinner or animation
+  console.log("Loading...");
+}
+
+// Helper function to hide the loading indicator
+function hideLoader() {
+  // Hide the loading spinner or animation
+  console.log("Loading complete!");
+}
+
+
+// Helper function to set the profile image
+function setProfileImage(base64Image) {
+  const profileImgElement = document.getElementById("profileImg");
+  if (base64Image) {
+    profileImgElement.src = base64Image;
+  } else {
+    profileImgElement.src = "https://st2.depositphotos.com/1006318/5909/v/450/depositphotos_59094701-stock-illustration-businessman-profile-icon.jpg"; // your default image
+  }
+}
+
+// Open the settings modal and load user data
+async function openSettings() {
+  const settingsModal = document.getElementById("settingsModal");
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("You must be logged in to view settings.");
+    return;
+  }
+
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userRef);
+
+    if (userDoc.exists()) {
+      const data = userDoc.data();
+
+      // Fill form values
+      document.getElementById("name").value = data.name || "";
+      document.getElementById("email").value = data.email || "";
+      document.getElementById("phone").value = data.phone || "";
+      document.getElementById("address").value = data.address || "";
+
+      // Load profile image safely
+      setProfileImage(data.profilePicBase64);
+    } else {
+      console.log("No existing profile found.");
+      setProfileImage(null); // Set to default if no profile
+    }
+
+    // Show modal
+    settingsModal.classList.remove("hidden");
+  } catch (error) {
+    console.error("Failed to load user settings:", error);
+    alert("Unable to load your settings. Try again.");
+  }
+}
+
+// Close settings modal
+function closeSettings() {
+  document.getElementById("settingsModal").classList.add("hidden");
+}
+
+// Expose for inline onclick
+window.openSettings = openSettings;
+window.closeSettings = closeSettings;
+window.closeMobileWarningModal = closeMobileWarningModal;
+
+// Handle form submission
+document.getElementById("settingsForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  // Mobile detection
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile) {
+    showMobileWarningModal();
+    return;
+  }
+
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const phone = document.getElementById("phone").value;
+  const address = document.getElementById("address").value;
+  const profilePicFile = document.getElementById("profilePic").files[0];
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("You must be logged in to update settings.");
+    return;
+  }
+
+  try {
+    const userRef = doc(db, "users", user.uid);
+
+    // Save core fields
+    await setDoc(userRef, { name, email, phone, address }, { merge: true });
+
+    console.log("User data updated in Firestore");
+
+    // Handle profile picture if selected
+    if (profilePicFile) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Image = reader.result;
+
+        await setDoc(userRef, {
+          profilePicBase64: base64Image
+        }, { merge: true });
+
+        console.log("Profile picture stored in Firestore");
+
+        // Update image live
+        setProfileImage(base64Image);
+
+        closeSettings();
+        alert("Settings saved successfully!");
+      };
+      reader.readAsDataURL(profilePicFile);
+    } else {
+      closeSettings();
+      alert("Settings saved successfully!");
+    }
+
+  } catch (error) {
+    console.error("Error updating settings:", error);
+    alert("Error updating settings. Please try again.");
+  }
+});
+
+function showMobileWarningModal() {
+  document.getElementById("mobileWarningModal").classList.remove("hidden");
+}
+
+function closeMobileWarningModal() {
+  const modal = document.getElementById('mobileWarningModal');
+  modal.classList.add('opacity-0');
+  setTimeout(() => {
+    modal.classList.add('hidden');
+    modal.classList.remove('opacity-0');
+  }, 300); // Match the duration-300
+}
+
+// Event listener for delete button
+document.getElementById("deleteProfilePicBtn").addEventListener("click", async function() {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("You must be logged in to delete your profile picture.");
+    return;
+  }
+
+  try {
+    const userRef = doc(db, "users", user.uid);
+
+    // Remove profilePicBase64 field from Firestore
+    await updateDoc(userRef, {
+      profilePicBase64: deleteField()  // Use deleteField to delete the field
+    });
+
+    console.log("Profile picture deleted from Firestore");
+
+    // Update the UI (set to default avatar)
+    setProfileImage(null);
+
+    // Optionally, hide the delete button
+    document.getElementById("deleteProfilePicBtn").classList.add("hidden");
+
+    alert("Profile picture deleted successfully!");
+  } catch (error) {
+    console.error("Error deleting profile picture:", error);
+    alert("Error deleting profile picture. Please try again.");
+  }
+});
+
+
+// Expose logout function globally
+window.logoutUserWithFirebase = function () {
+  signOut(auth)
+    .then(() => {
+      alert("You have been logged out.");
+      window.location.href = "admin.html";
+      window.location.reload(true);
+    })
+    .catch((error) => {
+      console.error("Logout error:", error);
+      alert("Error logging out. Try again.");
+    });
+};
+
+// Function to open the email modal
+// Open the email modal and load customers from Firestore
+// Define your SMTP credentials
+const SMTP_USERNAME = "8b2e79001@smtp-brevo.com";
+const SMTP_PASSWORD = "9A0hTRwrMyKnB6zU";
+
+async function openEmailModal() {
+  const emailModal = document.getElementById("emailModal");
+  try {
+    // Load customers from Firestore
+    loadCustomers();
+
+    // Show the modal
+    emailModal.classList.remove("hidden");
+  } catch (error) {
+    console.error("Error opening email modal:", error);
+  }
+}
+
+// Close the email modal
+function closeEmailModal() {
+  document.getElementById("emailModal").classList.add("hidden");
+}
+
+// Ensure the functions are globally accessible
+window.openEmailModal = openEmailModal;
+window.closeEmailModal = closeEmailModal;
+
+// Load customers from Firestore into the select dropdown
+async function loadCustomers() {
+  const customerSelect = document.getElementById("customerSelect");
+  customerSelect.innerHTML = '<option value="all">Send to All Customers</option>';  // Default option
+
+  const customersRef = collection(db, "customers");  // Assuming 'users' collection contains customer data
+  const snapshot = await getDocs(customersRef);
+
+
+  snapshot.forEach(doc => {
+    const customer = doc.data();
+    const option = document.createElement("option");
+    option.value = customer.email;
+    option.textContent = customer.name;
+    customerSelect.appendChild(option);
+  });
+}
+
+// Handle email form submission
+document.getElementById("emailForm").addEventListener("submit", async function (e) {
+  e.preventDefault(); // Prevent default form submission
+
+  const subject = document.getElementById("emailSubject").value;
+  const body = document.getElementById("emailBody").value;
+  const recipient = document.getElementById("customerSelect").value;
+
+  if (!subject || !body) {
+    alert("Subject and body are required.");
+    return;
+  }
+
+  try {
+    // Send email via Brevo SMTP
+    const result = await sendEmail(SMTP_USERNAME, recipient, subject, body);
+    if (result) {
+      alert("Email sent successfully!");
+      closeEmailModal();
+    } else {
+      alert("Failed to send email.");
+    }
+  } catch (error) {
+    console.error("Error sending email: ", error);
+    alert("Error sending email.");
+  }
+});
+
+const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+const smtpUrl = 'https://smtp-relay.brevo.com';  // SMTP server URL
+
+// Send email using Brevo SMTP
+async function sendEmail(from, to, subject, body) {
+  const emailData = {
+    from: from,
+    to: to,
+    subject: subject,
+    body: body,
+  };
+
+  // Prepare the email content for sending using SMTP
+  const response = await fetch('https://smtp-relay.brevo.com', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Basic ${btoa(`${SMTP_USERNAME}:${SMTP_PASSWORD}`)}`,
+    },
+    body: JSON.stringify(emailData),
+  });
+
+  const result = await response.json();
+  return result.success;  // Check for success in response
+}
+
+
+//customer management
+// Firebase Firestore setup
+const form = document.getElementById("customerForm");
+const nameInput = document.getElementById("customerName");
+const emailInput = document.getElementById("customerEmail");
+const idInput = document.getElementById("customerId");
+const tableBody = document.getElementById("customersTableBody");
+
+// Load customers into table
+async function loadCustomerTable() {
+  const querySnapshot = await getDocs(collection(db, "customers"));
+  tableBody.innerHTML = "";
+  querySnapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="p-3">
+        <input type="checkbox" class="selectCustomerCheckbox" data-id="${docSnap.id}" />
+      </td>
+      <td class="p-3">${data.name}</td>
+      <td class="p-3">${data.email}</td>
+      <td class="p-3 flex gap-2">
+        <button class="bg-yellow-400 text-yellow-800 px-3 py-1 rounded" data-id="${docSnap.id}" data-name="${data.name}" data-email="${data.email}">Edit</button>
+        <button class="bg-red-500 text-white px-3 py-1 rounded" data-id="${docSnap.id}">Delete</button>
+      </td>
+    `;
+    tableBody.appendChild(tr);
+  });
+}
+
+// Submit form to add or update customers
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = nameInput.value;
+  const email = emailInput.value;
+  const id = idInput.value;
+
+  try {
+    if (id) {
+      const ref = doc(db, "customers", id);
+      await updateDoc(ref, { name, email });
+    } else {
+      await addDoc(collection(db, "customers"), { name, email });
+    }
+    form.reset();
+    loadCustomerTable();
+  } catch (err) {
+    console.error("Error saving customer:", err);
+  }
+});
+
+// Edit/Delete buttons
+tableBody.addEventListener("click", async (e) => {
+  const target = e.target;
+  const id = target.getAttribute("data-id");
+
+  if (target.textContent === "Edit") {
+    nameInput.value = target.getAttribute("data-name");
+    emailInput.value = target.getAttribute("data-email");
+    idInput.value = id;
+  }
+
+  if (target.textContent === "Delete") {
+    if (confirm("Are you sure you want to delete this customer?")) {
+      await deleteDoc(doc(db, "customers", id));
+      loadCustomerTable();
+    }
+  }
+});
+
+// Load on page
+document.addEventListener("DOMContentLoaded", loadCustomerTable);
+
+// Search customers
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("searchInput").addEventListener("input", searchCustomers);
+});
+
+function searchCustomers() {
+  const input = document.getElementById("searchInput").value.toLowerCase();
+  const rows = document.querySelectorAll("#customersTableBody tr");
+
+  rows.forEach(row => {
+    const name = row.children[0].textContent.toLowerCase();
+    const email = row.children[1].textContent.toLowerCase();
+    const isVisible = name.includes(input) || email.includes(input);
+    row.style.display = isVisible ? "" : "none";
+  });
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const name = userSnap.data().name || "Admin";
+        const welcomeEl = document.getElementById("welcomeMessage");
+        if (welcomeEl) {
+          welcomeEl.textContent = `Welcome, ${name}`;
+        }
+      } else {
+        console.warn("User data not found in Firestore.");
+      }
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+    }
+  }
+});
+
+const totalCustomersEl = document.getElementById("totalCustomers");
+
+onSnapshot(collection(db, "customers"), (snapshot) => {
+  totalCustomersEl.textContent = snapshot.size.toLocaleString();
+});
+
+// Delete All Customers
+document.getElementById("deleteAllBtn").addEventListener("click", async () => {
+  if (confirm("This will delete ALL customers. Are you sure?")) {
+    const querySnapshot = await getDocs(collection(db, "customers"));
+    const batch = writeBatch(db);
+    querySnapshot.forEach((docSnap) => {
+      batch.delete(doc(db, "customers", docSnap.id));
+    });
+
+    try {
+      await batch.commit();
+      loadCustomerTable();
+      alert("All customers deleted.");
+    } catch (err) {
+      console.error("Error deleting all customers:", err);
+    }
+  }
+});
+
+// Delete Selected Customers
+document.getElementById("deleteSelectedBtn").addEventListener("click", async () => {
+  const checkboxes = document.querySelectorAll(".selectCustomerCheckbox:checked");
+  if (checkboxes.length === 0) {
+    return alert("Please select at least one customer to delete.");
+  }
+
+  if (confirm(`Delete ${checkboxes.length} selected customers?`)) {
+    const batch = writeBatch(db);
+
+    checkboxes.forEach((checkbox) => {
+      const id = checkbox.getAttribute("data-id");
+      batch.delete(doc(db, "customers", id));
+    });
+
+    try {
+      await batch.commit();
+      loadCustomerTable();
+      alert("Selected customers deleted.");
+    } catch (err) {
+      console.error("Error deleting selected customers:", err);
+    }
+  }
+});
+
+
+
+//project management
+  // Upload project details
+  const projectForm = document.getElementById('projectForm');
+  const mediaUpload = document.getElementById('mediaUpload');
+  const mediaPreview = document.getElementById('mediaPreview');
+  const progressBarContainer = document.getElementById('progressBarContainer');
+  const progressBar = document.getElementById('progressBar');
+
+  // Preview image/video before upload
+  mediaUpload.addEventListener('change', function (event) {
+    mediaPreview.innerHTML = '';  // Clear any previous previews
+    const files = event.target.files;
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const fileType = file.type.split('/')[0];  // e.g. "image", "video"
+        let previewElement;
+
+        if (fileType === 'image') {
+          previewElement = document.createElement('img');
+          previewElement.src = e.target.result;
+          previewElement.classList.add('w-32', 'h-32', 'object-cover', 'rounded-md', 'mb-4');
+        } else if (fileType === 'video') {
+          previewElement = document.createElement('video');
+          previewElement.src = e.target.result;
+          previewElement.classList.add('w-32', 'h-32', 'object-cover', 'rounded-md', 'mb-4');
+          previewElement.setAttribute('controls', 'true');
+        }
+        mediaPreview.appendChild(previewElement);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  // Handle form submission (upload project data)
+  projectForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const name = document.getElementById('projectName').value;
+    const location = document.getElementById('location').value;
+    const bedrooms = document.getElementById('bedrooms').value;
+    const bathrooms = document.getElementById('bathrooms').value;
+    const floorArea = document.getElementById('floorArea').value;
+    const description = marked(document.getElementById('description').value); // Convert Markdown to HTML
+
+    // Get the selected features as an array
+    const features = Array.from(document.getElementById('features').selectedOptions).map(option => option.value);
+
+    // Handle the progress bar
+    progressBarContainer.classList.remove('hidden');
+
+    // Simulate the upload progress (use this logic for real uploads)
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 10;
+      progressBar.style.width = progress + '%';
+      if (progress >= 100) {
+        clearInterval(interval);
+        alert('Project uploaded successfully!');
+      }
+    }, 500);
+
+    // Now, handle the media upload as Base64 encoding
+    const mediaFile = mediaUpload.files[0];
+    let base64Media = null;
+
+    if (mediaFile) {
+      const reader = new FileReader();
+      reader.onloadend = async function () {
+        base64Media = reader.result;
+
+        // Now add project data to Firestore
+        const projectData = {
+          name,
+          location,
+          bedrooms,
+          bathrooms,
+          floorArea,
+          description,
+          features,
+          mediaBase64: base64Media,  // Save Base64 media data
+          timestamp: new Date().toISOString()  // Add a timestamp for sorting later
+        };
+
+        try {
+          // Add the project data to Firestore
+          await addDoc(collection(db, 'projects'), projectData);
+          console.log('Project uploaded to Firestore!');
+          progressBarContainer.classList.add('hidden');
+        } catch (error) {
+          console.error('Error uploading project:', error);
+          progressBarContainer.classList.add('hidden');
+        }
+      };
+      reader.readAsDataURL(mediaFile);
+    } else {
+      // If no media is uploaded, just upload the project data without media
+      const projectData = {
+        name,
+        location,
+        bedrooms,
+        bathrooms,
+        floorArea,
+        description,
+        features,
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        // Add the project data to Firestore
+        await addDoc(collection(db, 'projects'), projectData);
+        console.log('Project uploaded to Firestore!');
+        progressBarContainer.classList.add('hidden');
+      } catch (error) {
+        console.error('Error uploading project:', error);
+        progressBarContainer.classList.add('hidden');
+      }
+    }
+  });
+
+// Reference to the "projects" collection in Firestore
+const projectsRef = collection(db, "projects");
+// Real-time listener for the projects collection
+onSnapshot(projectsRef, (snapshot) => {
+    const activeProjectsCount = snapshot.size; // Get the number of active projects
+    document.getElementById("activeProjectsCount").textContent = activeProjectsCount;
+});
+
+// Fetch projects using onSnapshot for real-time updates
+function fetchProjects() {
+      const projectsGrid = document.getElementById('projectsGrid');
+      const projectsCollection = collection(db, 'projects');
+
+      // Real-time updates
+      onSnapshot(projectsCollection, (querySnapshot) => {
+        projectsGrid.innerHTML = '';  // Clear existing projects
+
+        querySnapshot.forEach((doc) => {
+          const project = doc.data();
+          const projectId = doc.id;
+
+          const projectCard = document.createElement('div');
+          projectCard.classList.add('bg-gray-800', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'transform', 'hover:scale-105', 'transition-transform', 'duration-300', 'h-[420px]');
+
+          const mediaContent = document.createElement('div');
+          mediaContent.classList.add('relative');
+          const mediaElement = project.mediaBase64 
+            ? project.mediaBase64.startsWith('data:image') 
+              ? `<img src="${project.mediaBase64}" alt="${project.name}" class="w-full h-56 object-cover"/>`
+              : `<video src="${project.mediaBase64}" controls class="w-full h-56 object-cover"></video>`
+            : `<div class="w-full h-56 bg-gray-600 flex items-center justify-center text-white">No Media</div>`;
+
+          mediaContent.innerHTML = mediaElement;
+
+          const projectDetails = document.createElement('div');
+          projectDetails.classList.add('p-6');
+
+          const title = document.createElement('h3');
+          title.classList.add('text-xl', 'font-semibold', 'text-gray-100');
+          title.textContent = project.name;
+
+          const location = document.createElement('p');
+          location.classList.add('text-gray-400', 'text-sm');
+          location.textContent = `Location: ${project.location}`;
+
+          const features = document.createElement('p');
+          features.classList.add('text-gray-400', 'text-sm');
+          features.textContent = `Features: ${project.features.join(', ')}`;
+
+          const floorArea = document.createElement('p');
+          floorArea.classList.add('text-gray-400', 'text-sm');
+          floorArea.textContent = `Floor Area: ${project.floorArea} sq ft`;
+
+          const actions = document.createElement('div');
+          actions.classList.add('flex', 'justify-between', 'mt-4');
+          actions.innerHTML = `
+            <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" data-project-id="${projectId}" data-action="update">Update</button>
+            <button class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition" data-project-id="${projectId}" data-action="delete">Delete</button>
+          `;
+
+          // Delete button functionality
+          actions.querySelector('button[data-action="delete"]').addEventListener('click', () => {
+            deleteProject(projectId);
+          });
+
+          // Update button functionality
+          actions.querySelector('button[data-action="update"]').addEventListener('click', () => {
+            openUpdateModal(projectId, project);
+          });
+
+          projectDetails.appendChild(title);
+          projectDetails.appendChild(location);
+          projectDetails.appendChild(features);
+          projectDetails.appendChild(floorArea);
+          projectDetails.appendChild(actions);
+
+          projectCard.appendChild(mediaContent);
+          projectCard.appendChild(projectDetails);
+
+          projectsGrid.appendChild(projectCard);
+        });
+      });
+    }
+
+    // Function to delete project
+    async function deleteProject(projectId) {
+      try {
+        await deleteDoc(doc(db, 'projects', projectId));
+        alert('Project deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting project: ', error);
+        alert('Error deleting project!');
+      }
+    }
+
+// Open the update form modal with the selected project's details
+function openUpdateModal(projectId, project) {
+  const updateModal = document.getElementById('updateModal');
+  const updateForm = document.getElementById('updateForm');
+
+  updateForm['updateName'].value = project.name;
+  updateForm['updateLocation'].value = project.location;
+  updateForm['updateBedrooms'].value = project.bedrooms;
+  updateForm['updateBathrooms'].value = project.bathrooms;
+  updateForm['updateFloorArea'].value = project.floorArea;
+  updateForm['updateDescription'].value = project.description;
+
+  // Show existing image if it exists
+  const updateImagePreview = document.getElementById('updateImagePreview');
+  if (project.image) {
+    const img = document.createElement('img');
+    img.src = project.image;
+    img.classList.add('w-32', 'h-32', 'object-cover', 'rounded-md', 'mb-4');
+    updateImagePreview.innerHTML = ''; // Clear previous preview
+    updateImagePreview.appendChild(img);
+  } else {
+    updateImagePreview.innerHTML = ''; // No image, clear the preview area
+  }
+
+  // Open modal
+  updateModal.classList.remove('hidden');
+  updateForm.onsubmit = (e) => handleUpdateSubmit(e, projectId);
+}
+
+function closeUpdateModal() {
+  const updateModal = document.getElementById('updateModal');
+  updateModal.classList.add('hidden');
+}
+
+// Make it accessible globally (because you use it in inline HTML)
+window.closeUpdateModal = closeUpdateModal;
+
+
+// Image preview before upload
+const updateImageInput = document.getElementById('updateImage');
+updateImageInput.addEventListener('change', function (event) {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    const updateImagePreview = document.getElementById('updateImagePreview');
+    updateImagePreview.innerHTML = ''; // Clear existing preview
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.classList.add('w-32', 'h-32', 'object-cover', 'rounded-md', 'mb-4');
+    updateImagePreview.appendChild(img);
+  };
+  reader.readAsDataURL(file);
+});
+
+// Handle project update submission
+async function handleUpdateSubmit(event, projectId) {
+  event.preventDefault();
+  const updateForm = document.getElementById('updateForm');
+  const updatedProject = {
+    name: updateForm['updateName'].value,
+    location: updateForm['updateLocation'].value,
+    bedrooms: updateForm['updateBedrooms'].value,
+    bathrooms: updateForm['updateBathrooms'].value,
+    floorArea: updateForm['updateFloorArea'].value,
+    description: updateForm['updateDescription'].value,
+    features: [], // Handle feature selection if necessary
+  };
+
+  // Check if the user uploaded a new image
+  const updateImage = document.getElementById('updateImage').files[0];
+  if (updateImage) {
+    const reader = new FileReader();
+    reader.onload = async function (e) {
+      updatedProject.image = e.target.result; // Save the base64 image string
+      try {
+        await updateDoc(doc(db, 'projects', projectId), updatedProject);
+        alert('Project updated successfully!');
+        closeUpdateModal();
+      } catch (error) {
+        console.error('Error updating project: ', error);
+        alert('Error updating project!');
+      }
+    };
+    reader.readAsDataURL(updateImage); // Read the file and trigger onload
+  } else {
+    // No image uploaded, proceed with updating other data
+    try {
+      await updateDoc(doc(db, 'projects', projectId), updatedProject);
+      alert('Project updated successfully!');
+      closeUpdateModal();
+    } catch (error) {
+      console.error('Error updating project: ', error);
+      alert('Error updating project!');
+    }
+  }
+}
+
+// Flat management and assets calculation
+const projectSearchInput = document.getElementById("projectSearch");
+let searchQuery = "";
+
+const flatContainer = document.getElementById("flatManagerContainer");
+const filterSoldButton = document.getElementById("filterSold");
+const totalRevenueElement = document.getElementById("totalRevenue");
+let showUnsoldOnly = false;
+let showSoldOnly = false;
+
+function renderProjectFlats(snapshot) {
+  flatContainer.innerHTML = "";
+  let totalRevenue = 0;
+  let totalSoldFlats = 0;
+  let totalAvailableFlats = 0;
+
+  snapshot.forEach(docSnap => {
+    const project = docSnap.data();
+    const id = docSnap.id;
+    const flats = project.flats || [];
+    const hasGarages = project.hasGarages || false;
+
+    // 🧠 Search filtering
+    if (!project.name.toLowerCase().includes(searchQuery.toLowerCase())) return;
+
+    const filteredFlats = flats.filter(flat => {
+      if (showUnsoldOnly) return flat.soldUnits < flat.units;
+      if (showSoldOnly) return flat.soldUnits === flat.units;
+      return true;
+    });
+
+    const projectDiv = document.createElement("div");
+    projectDiv.className = "bg-gray-900 p-6 rounded-xl shadow-xl";
+    
+    projectDiv.innerHTML = `
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3 sm:gap-0">
+        <h3 class="text-2xl font-semibold text-white">${project.name}</h3>
+        <label class="text-white flex items-center gap-2">
+          <input type="checkbox" class="toggleGarages" data-id="${id}" ${hasGarages ? "checked" : ""}>
+          Include Garages
+        </label>
+        <button class="addFloorBtn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" data-id="${id}">➕ Add Floor</button>
+      </div>
+
+      <div id="floorList-${id}" class="space-y-4">
+        ${filteredFlats.map((flat, index) => {
+          const isSold = flat.soldUnits == flat.units;
+          const isGarage = flat.label.startsWith("Garage");
+
+          return `
+            <div class="bg-gray-800 p-4 rounded shadow space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-white font-bold text-lg">🏷️ ${flat.label}</span>
+                <span class="text-white text-sm px-2 py-1 rounded ${isSold ? 'bg-red-500' : 'bg-green-500'}">
+                  ${isSold ? 'Sold' : 'Available'}
+                </span>
+              </div>
+
+              <!-- Inputs arranged in grid for responsiveness -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="text-gray-300 text-sm block mb-1">💰 Price</label>
+                  <input type="number" value="${flat.price || ''}" placeholder="₹ Price"
+                    class="bg-gray-700 p-2 rounded w-full text-white priceInput"
+                    data-id="${id}" data-index="${index}" />
+                </div>
+
+                <div>
+                  <label class="text-gray-300 text-sm block mb-1">🏗️ Units</label>
+                  <input type="number" value="${flat.units || 0}" placeholder="Units"
+                    class="bg-gray-700 p-2 rounded w-full text-white unitsInput"
+                    data-id="${id}" data-index="${index}" ${isGarage ? 'disabled' : 'disabled'} />
+                </div>
+
+                <div>
+                  <label class="text-gray-300 text-sm block mb-1">📦 Sold Units</label>
+                  <input type="number" value="${flat.soldUnits || 0}"
+                    class="bg-gray-700 p-2 rounded w-full text-white soldUnitsInput" disabled />
+                </div>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="flex flex-wrap gap-2 mt-3">
+                <button class="sellUnitsBtn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                  data-id="${id}" data-index="${index}">💸 Sell Units</button>
+                <button class="toggleHistoryBtn bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+                  data-id="${id}" data-index="${index}">📜 History</button>
+                <button class="deleteFloorBtn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                  data-id="${id}" data-index="${index}">🗑️ Delete</button>
+              </div>
+
+              <!-- Sales history (hidden by default) -->
+              <div class="salesHistory mt-2 hidden" id="history-${id}-${index}">
+                ${(flat.salesHistory || []).map((entry, saleIndex) => `
+                  <div class="flex justify-between bg-gray-700 p-2 rounded text-white text-sm">
+                    <span>🕒 ${new Date(entry.date).toLocaleString()} — 🧾 ${entry.units} unit(s)</span>
+                    <button class="undoSpecificSaleBtn bg-purple-500 hover:bg-purple-600 text-white px-2 py-1 rounded text-xs"
+                      data-id="${id}" data-index="${index}" data-sale-index="${saleIndex}">↩️ Undo</button>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    `;
+
+    flatContainer.appendChild(projectDiv);
+
+    filteredFlats.forEach(flat => {
+      if (flat.soldUnits < flat.units && flat.price) {
+        totalRevenue += parseFloat(flat.price) * parseInt(flat.units, 10);
+        totalAvailableFlats += flat.units - flat.soldUnits;
+      }
+      if (flat.soldUnits === flat.units) {
+        totalSoldFlats += flat.units;
+      }
+    });
+  });
+
+  totalRevenueElement.textContent = `Total Stock Value: ₹ ${totalRevenue.toFixed(2)}`;
+  updateFlatsSoldAndAvailable(totalSoldFlats, totalAvailableFlats);  // ← Update counts
+}
+
+// ✅ Attach the listener only once
+onSnapshot(collection(db, "projects"), snapshot => {
+  console.log("Snapshot received: ", snapshot.size);  // Check number of documents
+  renderProjectFlats(snapshot);
+});
+
+
+
+function getNextFloorLabel(flats, hasGarages, garageCount) {
+  // Count how many garages already added
+  const garageFlats = flats.filter(flat => flat.label.startsWith("Garage"));
+
+  // Still adding garages
+  if (hasGarages && garageFlats.length < garageCount) {
+    return `Garage ${garageFlats.length + 1}`;
+  }
+
+  // Get the highest numbered normal flat label (excluding garages)
+  const normalFlats = flats
+    .filter(flat => !flat.label.startsWith("Garage"))
+    .map(flat => parseInt(flat.label))
+    .filter(n => !isNaN(n));
+
+  const lastFlatNumber = normalFlats.length > 0 ? Math.max(...normalFlats) : 0;
+
+  // Next flat number
+  return `${lastFlatNumber + 1}`;
+}
+
+
+// ➕ Add floor handler with default units selection for existing vs new projects
+document.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("addFloorBtn")) {
+    const id = e.target.dataset.id;
+    const ref = doc(db, "projects", id);
+    const snapshot = await getDoc(ref);
+    const project = snapshot.data();
+    const flats = project.flats || [];
+    const hasGarages = project.hasGarages || false;
+    const garageCount = project.garageCount || 0;
+
+    let isGarage = hasGarages && flats.filter(f => f.label.startsWith("Garage")).length < garageCount;
+
+    // Check if the project has a saved defaultUnits value
+    let defaultUnits = project.defaultUnits;  // Assuming `defaultUnits` is a field in the project document
+
+    // If this is a new project and defaultUnits is not set, ask the user for default units once
+    let unitsForNewFlat;
+    if (!defaultUnits) {
+      // This means it's a new project without a saved defaultUnits field
+      defaultUnits = prompt("Enter the number of units for the new floor (e.g., 1, 2, 3, etc.):", "2");
+
+      // Ensure the value is a number and at least 1
+      defaultUnits = parseInt(defaultUnits, 10);
+      if (isNaN(defaultUnits) || defaultUnits < 1) {
+        defaultUnits = 2;  // Default to 2 if the input is invalid or below 1
+      }
+
+      // Save this default value in the project document so it doesn't prompt again
+      await updateDoc(ref, { defaultUnits });
+      
+      // Set the units for the new flat (for new projects)
+      unitsForNewFlat = isGarage ? 1 : defaultUnits;
+    } else {
+      // For existing projects, only ask for units for flats, not for garages
+      if (isGarage) {
+        unitsForNewFlat = 1;  // For garages, units should always be 1
+      } else {
+        // For flats, ask the user for units every time
+        unitsForNewFlat = prompt("Enter the number of units for the new floor (e.g., 1, 2, 3, etc.):", "2");
+        unitsForNewFlat = parseInt(unitsForNewFlat, 10);
+
+        // Ensure the value is a valid number and at least 1
+        if (isNaN(unitsForNewFlat) || unitsForNewFlat < 1) {
+          unitsForNewFlat = 2;  // Default to 2 if the input is invalid or below 1
+        }
+      }
+    }
+
+    // Create the new flat with the appropriate units value
+    const newFlat = {
+      label: getNextFloorLabel(flats, hasGarages, garageCount),
+      price: "",
+      soldUnits: 0,
+      units: unitsForNewFlat, // Use 1 unit for garages, or the chosen/default value for flats
+    };
+
+    // Add the new flat to the project
+    await updateDoc(ref, { flats: [...flats, newFlat] });
+  }
+});
+
+
+// 💰 Price update handler
+document.addEventListener("input", async (e) => {
+  if (e.target.classList.contains("priceInput")) {
+    const id = e.target.dataset.id;
+    const index = +e.target.dataset.index;
+    const newPrice = e.target.value;
+
+    const ref = doc(db, "projects", id);
+    const snap = await getDoc(ref);
+    const flats = snap.data().flats || [];
+
+    flats[index].price = newPrice;
+    await updateDoc(ref, { flats });
+  }
+});
+
+// 🔄 Sold toggle handler
+document.addEventListener("change", async (e) => {
+  if (e.target.classList.contains("soldToggle")) {
+    const id = e.target.dataset.id;
+    const index = +e.target.dataset.index;
+    const sold = e.target.checked;
+
+    const ref = doc(db, "projects", id);
+    const snap = await getDoc(ref);
+    const flats = snap.data().flats || [];
+
+    const flat = flats[index];
+
+    if (sold) {
+      const soldUnits = prompt(`How many units of ${flat.label} are sold? (Max: ${flat.units})`);
+      if (soldUnits) {
+        flat.soldUnits = Math.min(soldUnits, flat.units);
+      }
+    } else {
+      flat.soldUnits = 0;
+    }
+
+    await updateDoc(ref, { flats });
+  }
+});
+
+// 🏢 Units input handler
+document.addEventListener("input", async (e) => {
+  if (e.target.classList.contains("unitsInput")) {
+    const id = e.target.dataset.id;
+    const index = +e.target.dataset.index;
+    const newUnits = e.target.value;
+
+    const ref = doc(db, "projects", id);
+    const snap = await getDoc(ref);
+    const flats = snap.data().flats || [];
+
+    flats[index].units = newUnits;
+
+    if (flats[index].soldUnits > newUnits) {
+      flats[index].soldUnits = newUnits;
+    }
+
+    await updateDoc(ref, { flats });
+  }
+});
+
+// 🗑️ Delete floor handler
+document.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("deleteFloorBtn")) {
+    const id = e.target.dataset.id;
+    const index = +e.target.dataset.index;
+
+    const ref = doc(db, "projects", id);
+    const snap = await getDoc(ref);
+    const flats = snap.data().flats || [];
+
+    flats.splice(index, 1);
+    await updateDoc(ref, { flats });
+  }
+});
+
+// 🚗 Garage toggle handler
+document.addEventListener("change", async (e) => {
+  if (e.target.classList.contains("toggleGarages")) {
+    const id = e.target.dataset.id;
+    const hasGarages = e.target.checked;
+
+    const ref = doc(db, "projects", id);
+    if (hasGarages) {
+      const garageCount = prompt("How many garages do you want to add?");
+      await updateDoc(ref, { hasGarages: true, garageCount: parseInt(garageCount, 10) });
+    } else {
+      await updateDoc(ref, { hasGarages: false, garageCount: 0 });
+    }
+  }
+});
+
+// 🛒 Sell Units with history
+document.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("sellUnitsBtn")) {
+    const id = e.target.dataset.id;
+    const index = +e.target.dataset.index;
+
+    const ref = doc(db, "projects", id);
+    const snap = await getDoc(ref);
+    const flats = snap.data().flats || [];
+
+    const flat = flats[index];
+    const maxUnits = parseInt(flat.units || 0);
+    const prevSold = parseInt(flat.soldUnits || 0);
+
+    const sellInput = prompt(`Sell how many units from ${flat.label}? (Max: ${maxUnits - prevSold})`);
+    const sellCount = parseInt(sellInput, 10);
+
+    if (!isNaN(sellCount) && sellCount > 0 && prevSold + sellCount <= maxUnits) {
+      flat.soldUnits = prevSold + sellCount;
+
+      // Add to sales history
+      if (!flat.salesHistory) flat.salesHistory = [];
+      flat.salesHistory.push({
+        date: new Date().toISOString(),
+        units: sellCount
+      });
+
+      // Update the project document
+      await updateDoc(ref, { flats });
+
+      // Explicitly call the render function to re-render the project flats
+      renderProjectFlats(await getDocs(collection(db, "projects")));
+
+      alert(`Sold ${sellCount} unit(s).`);
+    } else {
+      alert("Invalid input or exceeds available units.");
+    }
+  }
+});
+
+
+// ↩️ Undo last sale
+document.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("undoSaleBtn")) {
+    const id = e.target.dataset.id;
+    const index = +e.target.dataset.index;
+
+    const ref = doc(db, "projects", id);
+    const snap = await getDoc(ref);
+    const flats = snap.data().flats || [];
+
+    const flat = flats[index];
+    if (!flat.salesHistory || flat.salesHistory.length === 0) {
+      alert("No sales to undo.");
+      return;
+    }
+
+    const lastSale = flat.salesHistory.pop();
+    flat.soldUnits = Math.max(0, flat.soldUnits - lastSale.units);
+
+    await updateDoc(ref, { flats });
+    alert(`Undid last sale of ${lastSale.units} unit(s).`);
+  }
+});
+
+// 📜 Toggle History View
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("toggleHistoryBtn")) {
+    const id = e.target.dataset.id;
+    const index = e.target.dataset.index;
+    const historyDiv = document.getElementById(`history-${id}-${index}`);
+    historyDiv.classList.toggle("hidden");
+  }
+});
+
+// ↩️ Undo specific sale
+document.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("undoSpecificSaleBtn")) {
+    const id = e.target.dataset.id;
+    const flatIndex = +e.target.dataset.index;
+    const saleIndex = +e.target.dataset.saleIndex;
+
+    const ref = doc(db, "projects", id);
+    const snap = await getDoc(ref);
+    const flats = snap.data().flats || [];
+    const flat = flats[flatIndex];
+
+    const saleToUndo = flat.salesHistory?.[saleIndex];
+    if (!saleToUndo) {
+      alert("Sale record not found.");
+      return;
+    }
+
+    flat.soldUnits = Math.max(0, flat.soldUnits - saleToUndo.units);
+    flat.salesHistory.splice(saleIndex, 1);
+
+    await updateDoc(ref, { flats });
+    alert(`Reverted sale of ${saleToUndo.units} unit(s) from ${new Date(saleToUndo.date).toLocaleString()}`);
+  }
+});
+
+let filterState = 0; // 0 = show all, 1 = show sold only, 2 = show unsold only
+
+filterSoldButton.addEventListener("click", () => {
+  // Cycle through the states
+  filterState = (filterState + 1) % 3; // Cycle through 0, 1, 2
+
+  // Update the text based on the state
+  switch (filterState) {
+    case 0:
+      showSoldOnly = false;
+      showUnsoldOnly = false;
+      filterSoldButton.textContent = "Show Only Sold Flats";  // Button text update
+      break;
+    case 1:
+      showSoldOnly = true;
+      showUnsoldOnly = false;
+      filterSoldButton.textContent = "Show Only Unsold Flats";  // Button text update
+      break;
+    case 2:
+      showSoldOnly = false;
+      showUnsoldOnly = true;
+      filterSoldButton.textContent = "Show All Flats";  // Button text update
+      break;
+  }
+
+  // Trigger re-render to apply the filter
+  onSnapshot(collection(db, "projects"), renderProjectFlats);
+});
+
+
+
+projectSearchInput.addEventListener("input", (e) => {
+  searchQuery = e.target.value;
+  // Force re-render via fake snapshot trigger (or re-query if needed)
+  onSnapshot(collection(db, "projects"), renderProjectFlats);
+});
+
+
+
+//revenue calculation for all projects in widget 
+const totalRevenueText = document.getElementById("totalRevenuetext");
+
+// Function to calculate and update revenue
+async function calculateNetRevenue() {
+  try {
+    // Get all project data
+    const projectSnapshot = await getDocs(collection(db, "projects"));
+    let totalRevenue = 0;
+
+    projectSnapshot.forEach(docSnap => {
+      const project = docSnap.data();
+      const flats = project.flats || [];
+
+      flats.forEach(flat => {
+        if (flat.soldUnits > 0 && flat.price) {
+          totalRevenue += parseFloat(flat.price) * parseInt(flat.soldUnits, 10);
+        }
+      });
+    });
+
+    // Get all discounts
+    const discountSnapshot = await getDocs(collection(db, "discounts"));
+    let totalDiscount = 0;
+
+    discountSnapshot.forEach(docSnap => {
+      const discount = docSnap.data();
+      if (discount.discountAmount) {
+        totalDiscount += parseFloat(discount.discountAmount);
+      }
+    });
+
+    // Calculate net revenue
+    const netRevenue = totalRevenue - totalDiscount;
+
+    if (totalRevenueText) {
+      totalRevenueText.textContent = `₹ ${netRevenue.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    }
+  } catch (err) {
+    console.error("Error calculating revenue:", err);
+  }
+}
+
+// Call the function on initial load and optionally listen to changes
+calculateNetRevenue();
+
+// Optional: Recalculate if discounts or projects change
+onSnapshot(collection(db, "projects"), () => calculateNetRevenue());
+onSnapshot(collection(db, "discounts"), () => calculateNetRevenue());
+
+
+//customer upload by csv or excel file
+// Get references to the elements
+const uploadInput = document.getElementById("customerFileUpload");
+const fileProgressWrapper = document.getElementById("fileUploadProgressWrapper");
+const fileProgressBar = document.getElementById("fileUploadProgressBar");
+const fileProgressText = document.getElementById("fileProgressText");
+const successMsg = document.getElementById("uploadSuccess");
+const validationMsg = document.getElementById("fileValidationMsg");
+
+// Add event listener for file selection
+uploadInput.addEventListener("change", handleFileUpload);
+
+async function handleFileUpload(e) {
+  const file = e.target.files[0];
+
+  // Reset UI elements
+  validationMsg.classList.add("hidden");
+  fileProgressWrapper.classList.add("hidden");
+  successMsg.classList.add("hidden");
+  fileProgressBar.style.width = "0%";
+
+  if (!file) return;
+
+  // Validate file type (CSV or Excel)
+  const validTypes = ["application/vnd.ms-excel", "text/csv", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
+  if (!validTypes.includes(file.type)) {
+    validationMsg.classList.remove("hidden");
+    return;
+  }
+
+  // Show the file upload progress bar
+  fileProgressWrapper.classList.remove("hidden");
+
+  // Parse the file and get customer data
+  let customersData = [];
+  if (file.type === "text/csv") {
+    customersData = await parseCSV(file);
+  } else {
+    customersData = await parseExcel(file);
+  }
+
+  // Upload customer data to Firestore
+  uploadCustomersToFirestore(customersData);
+}
+
+function parseCSV(file) {
+  return new Promise((resolve, reject) => {
+    Papa.parse(file, {
+      complete: (results) => {
+        // Extract name and email from the CSV data
+        const customers = results.data.slice(1).map(row => ({
+          name: row[0], // Assuming the first column is 'name'
+          email: row[1], // Assuming the second column is 'email'
+        }));
+        resolve(customers);
+      },
+      error: (err) => reject(err),
+    });
+  });
+}
+
+function parseExcel(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = e.target.result;
+      const workbook = XLSX.read(data, { type: 'binary' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const customers = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+      // Extract name and email from the Excel data
+      resolve(customers.slice(1).map(row => ({
+        name: row[0], // Assuming the first column is 'name'
+        email: row[1], // Assuming the second column is 'email'
+      })));
+    };
+    reader.onerror = (err) => reject(err);
+    reader.readAsBinaryString(file);
+  });
+}
+
+async function uploadCustomersToFirestore(customers) {
+  let progress = 0;
+  const totalCustomers = customers.length;
+
+  // Loop through each customer and upload to Firestore
+  for (let i = 0; i < totalCustomers; i++) {
+    const customer = customers[i];
+
+    try {
+      await addDoc(collection(db, "customers"), {
+        name: customer.name,
+        email: customer.email,
+      });
+
+      // Update file upload progress bar
+      progress = Math.min(((i + 1) / totalCustomers) * 100, 100);
+      fileProgressBar.style.width = `${progress}%`;
+      fileProgressText.textContent = `Uploading... ${Math.round(progress)}%`;
+
+      // Optional: Add a small delay to avoid hitting Firestore write limits
+      await new Promise(resolve => setTimeout(resolve, 200));
+    } catch (err) {
+      console.error("Error uploading customer:", err);
+    }
+  }
+
+  // Once the upload is complete, show the success message
+  setTimeout(() => {
+    fileProgressWrapper.classList.add("hidden");
+    successMsg.classList.remove("hidden");
+  }, 1000);
+}
+
+// Liability calculation and management
+const liabilitiesRef = collection(db, "liabilities");
+
+// State
+let liabilities = [];
+let currentFilter = "all";
+let sortBy = "createdAt";
+let liabilitySearchQuery = ""; // Renamed to avoid conflicts
+
+// Add new liability
+document.getElementById("addLiabilityForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const user = e.target.user.value.trim();
+  const amount = parseFloat(e.target.amount.value);
+  const dueDate = e.target.dueDate.value;
+  const description = e.target.description.value.trim();
+
+  if (!user || isNaN(amount) || !dueDate || !description) return;
+
+  await addDoc(liabilitiesRef, {
+    user,
+    amount,
+    dueDate,
+    description,
+    paid: false,
+    createdAt: new Date()
+  });
+
+  e.target.reset();
+});
+
+// Load and listen for changes
+onSnapshot(liabilitiesRef, (snapshot) => {
+  liabilities = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  filterAndDisplay();
+});
+
+// Filter buttons
+document.querySelectorAll(".filterBtn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentFilter = btn.id.replace("filter", "").toLowerCase(); // all/paid/unpaid
+    filterAndDisplay();
+  });
+});
+
+// Sort dropdown
+document.getElementById("sortLiabilities").addEventListener("change", (e) => {
+  sortBy = e.target.value;
+  filterAndDisplay();
+});
+
+// Search bar for liabilities
+document.getElementById("liabilitySearchBar").addEventListener("input", (e) => {
+  liabilitySearchQuery = e.target.value.trim().toLowerCase();
+  filterAndDisplay();
+});
+
+function filterAndDisplay() {
+  let filtered = [...liabilities];
+
+  // Search filter
+  if (liabilitySearchQuery) {
+    filtered = filtered.filter(l =>
+      l.user.toLowerCase().includes(liabilitySearchQuery) ||
+      l.description.toLowerCase().includes(liabilitySearchQuery)
+    );
+  }
+
+  // Paid/unpaid filter
+  if (currentFilter === "paid") filtered = filtered.filter(l => l.paid);
+  if (currentFilter === "unpaid") filtered = filtered.filter(l => !l.paid);
+
+  // Sort
+  filtered.sort((a, b) => {
+    if (sortBy === "dueDate") {
+      return new Date(a.dueDate) - new Date(b.dueDate);
+    } else if (sortBy === "amount") {
+      return b.amount - a.amount;
+    } else if (sortBy === "paidStatus") {
+      return (b.paid === true) - (a.paid === true);
+    } else {
+      return new Date(b.createdAt.toDate ? b.createdAt.toDate() : b.createdAt) -
+             new Date(a.createdAt.toDate ? a.createdAt.toDate() : a.createdAt);
+    }
+  });
+
+  updateTotalLiabilities(filtered);
+  updateLiabilitiesTotal(filtered);  // ✅ Add this line
+  renderList(filtered);
+}
+
+function updateTotalLiabilities(filteredLiabilities) {
+  const total = filteredLiabilities.reduce((sum, liability) => sum + liability.amount, 0);
+  document.getElementById('totalLiabilities').textContent = `💰 Total Liabilities: ₹${total}`;
+}
+
+function renderList(data) {
+  const list = document.getElementById("liabilityList");
+  list.innerHTML = data.map(item => {
+    const paidBadge = item.paid
+      ? '<span class="bg-green-500 text-sm px-2 py-1 rounded">✔️ Paid</span>'
+      : '<span class="bg-red-500 text-sm px-2 py-1 rounded">❌ Unpaid</span>';
+
+    return `
+      <div class="bg-gray-800 p-4 rounded-xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <div class="font-bold text-lg">${item.user} • ₹${item.amount}</div>
+          <div class="text-sm text-gray-300">🗓 Due: ${item.dueDate} • 📝 ${item.description}</div>
+        </div>
+        <div class="flex items-center gap-3">
+          ${paidBadge}
+          <button data-id="${item.id}" class="togglePaid px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm">${item.paid ? "Mark Unpaid" : "Mark Paid"}</button>
+          <button data-id="${item.id}" class="deleteLiability px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-sm">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Toggle paid
+  document.querySelectorAll(".togglePaid").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      const liability = liabilities.find(l => l.id === id);
+      if (!liability) return;
+      await updateDoc(doc(db, "liabilities", id), { paid: !liability.paid });
+    });
+  });
+
+  // Delete
+  document.querySelectorAll(".deleteLiability").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      await deleteDoc(doc(db, "liabilities", id));
+    });
+  });
+}
+
+//shareholders equity calculation and management
+// Firebase reference
+const equityRef = collection(db, "shareholdersEquity");
+
+// State
+let equities = [];
+let equityFilter = "all";
+let equitySortBy = "createdAt";
+let equitySearchQuery = "";
+
+// Add new equity entry
+document.getElementById("addEquityForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const user = e.target.equityUser.value.trim();
+  const amount = parseFloat(e.target.equityAmount.value);
+  const date = e.target.equityDate.value;
+  const description = e.target.equityDescription.value.trim();
+
+  if (!user || isNaN(amount) || !date || !description) return;
+
+  await addDoc(equityRef, {
+    user,
+    amount,
+    date,
+    description,
+    active: true,
+    createdAt: new Date()
+  });
+
+  e.target.reset();
+});
+
+// Real-time updates
+onSnapshot(equityRef, (snapshot) => {
+  equities = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  filterAndDisplayEquities();
+});
+
+// Filter buttons
+document.querySelectorAll(".equityFilterBtn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    equityFilter = btn.id.replace("filterEquity", "").toLowerCase(); // all/active/inactive
+    filterAndDisplayEquities();
+  });
+});
+
+// Sort dropdown
+document.getElementById("sortEquities").addEventListener("change", (e) => {
+  equitySortBy = e.target.value;
+  filterAndDisplayEquities();
+});
+
+// Search input
+document.getElementById("equitySearchBar").addEventListener("input", (e) => {
+  equitySearchQuery = e.target.value.trim().toLowerCase();
+  filterAndDisplayEquities();
+});
+
+// Display logic
+function filterAndDisplayEquities() {
+  let filtered = [...equities];
+
+  // Search
+  if (equitySearchQuery) {
+    filtered = filtered.filter(e =>
+      e.user.toLowerCase().includes(equitySearchQuery) ||
+      e.description.toLowerCase().includes(equitySearchQuery)
+    );
+  }
+
+  // Filter
+  if (equityFilter === "active") filtered = filtered.filter(e => e.active);
+  if (equityFilter === "inactive") filtered = filtered.filter(e => !e.active);
+
+  // Sort
+  filtered.sort((a, b) => {
+    if (equitySortBy === "date") {
+      return new Date(a.date) - new Date(b.date);
+    } else if (equitySortBy === "amount") {
+      return b.amount - a.amount;
+    } else if (equitySortBy === "status") {
+      return (b.active === true) - (a.active === true);
+    } else {
+      return new Date(b.createdAt.toDate ? b.createdAt.toDate() : b.createdAt) -
+             new Date(a.createdAt.toDate ? a.createdAt.toDate() : a.createdAt);
+    }
+  });
+
+  updateTotalEquity(filtered);
+  updateEquityTotal(filtered); // ✅ Add this line
+  renderEquityList(filtered);
+}
+
+function updateTotalEquity(data) {
+  const total = data.reduce((sum, item) => sum + item.amount, 0);
+  document.getElementById("totalEquity").textContent = `💵 Total Equity: ₹${total}`;
+}
+
+function renderEquityList(data) {
+  const list = document.getElementById("equityList");
+  list.innerHTML = data.map(item => {
+    const statusBadge = item.active
+      ? '<span class="bg-green-500 text-sm px-2 py-1 rounded">✅ Active</span>'
+      : '<span class="bg-red-500 text-sm px-2 py-1 rounded">⛔ Inactive</span>';
+
+    return `
+      <div class="bg-gray-800 p-4 rounded-xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <div class="font-bold text-lg">${item.user} • ₹${item.amount}</div>
+          <div class="text-sm text-gray-300">📅 Date: ${item.date} • 📝 ${item.description}</div>
+        </div>
+        <div class="flex items-center gap-3">
+          ${statusBadge}
+          <button data-id="${item.id}" class="toggleEquityStatus px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm">${item.active ? "Mark Inactive" : "Mark Active"}</button>
+          <button data-id="${item.id}" class="deleteEquity px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-sm">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Toggle active status
+  document.querySelectorAll(".toggleEquityStatus").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      const equity = equities.find(e => e.id === id);
+      if (!equity) return;
+      await updateDoc(doc(db, "shareholdersEquity", id), { active: !equity.active });
+    });
+  });
+
+  // Delete equity
+  document.querySelectorAll(".deleteEquity").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      await deleteDoc(doc(db, "shareholdersEquity", id));
+    });
+  });
+}
+
+// State holders for totals
+let totalLiabilityAmount = 0;
+let totalEquityAmount = 0;
+
+// Recalculate and update the total assets widget
+function updateTotalAssetsWidget() {
+  const totalAssets = totalLiabilityAmount + totalEquityAmount;
+  const el = document.getElementById("totalAssetsText");
+  el.textContent = `₹${totalAssets.toLocaleString()}`;
+  el.classList.add("animate-pulse");
+
+  setTimeout(() => el.classList.remove("animate-pulse"), 400);
+}
+
+// Update liabilities total and recalc assets
+function updateLiabilitiesTotal(data) {
+  totalLiabilityAmount = data.reduce((sum, item) => sum + item.amount, 0);
+  updateTotalAssetsWidget();
+}
+
+// Update equity total and recalc assets
+function updateEquityTotal(data) {
+  totalEquityAmount = data.reduce((sum, item) => sum + item.amount, 0);
+  updateTotalAssetsWidget();
+}
+
+//discount management
+// Assuming customerSelect is already defined in your HTML
+const customerSelect = document.getElementById("customerSelect");
+
+// Function to load customers into the select dropdown
+async function populateCustomerDropdown() {
+  try {
+    // Fetch customers from Firestore
+    const querySnapshot = await getDocs(collection(db, "customers"));
+    
+    // Clear existing options (if any)
+    customerSelect.innerHTML = '<option value="">Select Customer</option>';
+    
+    // Iterate over the querySnapshot and create options for each customer
+    querySnapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const option = document.createElement("option");
+      option.value = docSnap.id;  // Set the option value to the customer ID
+      option.textContent = data.name;  // Set the display text to the customer's name
+      customerSelect.appendChild(option);  // Append the option to the dropdown
+    });
+    
+  } catch (err) {
+    console.error("Error loading customers: ", err);
+  }
+}
+
+// Call populateCustomerDropdown when the page is loaded
+document.addEventListener("DOMContentLoaded", populateCustomerDropdown);
+
+// Assuming projectSelect and flatSelect are already defined in your HTML
+const projectSelect = document.getElementById("projectSelect");
+const flatSelect = document.getElementById("flatSelect");
+
+// Function to load projects into the select dropdown
+async function loadProjects() {
+  try {
+    // Fetch projects from Firestore
+    const querySnapshot = await getDocs(collection(db, "projects"));
+
+    // Clear existing options (if any)
+    projectSelect.innerHTML = '<option value="">Select Project</option>';
+
+    // Iterate over the querySnapshot and create options for each project
+    querySnapshot.forEach(docSnap => {
+      const project = docSnap.data();
+      const option = document.createElement("option");
+      option.value = docSnap.id;  // Set the option value to the project ID
+      option.textContent = project.name;  // Set the display text to the project name
+      projectSelect.appendChild(option);  // Append the option to the dropdown
+    });
+
+  } catch (err) {
+    console.error("Error loading projects: ", err);
+  }
+}
+
+// Function to load flats based on the selected project
+async function loadFlatsForSelectedProject(projectId) {
+  // Disable the flat select dropdown until the flats are loaded
+  flatSelect.disabled = true;
+  flatSelect.innerHTML = '<option value="">Select Flat</option>';  // Clear any existing options
+
+  if (!projectId) {
+    return; // If no project is selected, do nothing
+  }
+
+  try {
+    // Fetch the selected project from Firestore
+    const projectDocRef = doc(db, "projects", projectId);
+    const projectDocSnap = await getDoc(projectDocRef);
+
+    if (projectDocSnap.exists()) {
+      const projectData = projectDocSnap.data();
+      const flats = projectData.flats;  // Get the flats array from the project
+
+      // Iterate over the flats and create options
+      flats.forEach(flat => {
+        const option = document.createElement("option");
+        option.value = flat.label;  // Set the option value to the flat label
+        option.textContent = `${flat.label} - ${flat.price}`;  // Display the flat label and price
+        flatSelect.appendChild(option);  // Append the option to the flatSelect dropdown
+      });
+
+      // Enable the flat select dropdown after loading flats
+      flatSelect.disabled = false;
+
+    } else {
+      console.log("No such project!");
+    }
+  } catch (err) {
+    console.error("Error fetching project data: ", err);
+  }
+}
+
+// Event listener for project selection
+projectSelect.addEventListener("change", (e) => {
+  const selectedProjectId = e.target.value;  // Get the selected project ID
+  loadFlatsForSelectedProject(selectedProjectId);  // Load flats for the selected project
+});
+
+// Call loadProjects when the page is loaded
+document.addEventListener("DOMContentLoaded", loadProjects);
+
+// Assuming customerSelect, projectSelect, flatSelect are already defined
+const applyDiscountBtn = document.getElementById("applyDiscountBtn"); // The button that applies the discount
+const discountUnitsInput = document.getElementById("discountUnits"); // The input for discount units
+const discountAmountInput = document.getElementById("discountAmount"); // The input for discount amount (new)
+
+// Flag to track if we are editing a discount
+let isEditing = false;
+let currentDiscountId = null; // To track the ID of the discount being edited
+
+// Event listener for the Apply Discount button
+applyDiscountBtn.addEventListener("click", async () => {
+  const projectId = projectSelect.value;
+  const flatId = flatSelect.value;
+  const customerId = customerSelect.value;
+  const discountUnits = discountUnitsInput.value;
+  const discountAmount = discountAmountInput.value; // Get the discount amount
+
+  // Validate if all fields are filled
+  if (!projectId || !flatId || !customerId || !discountUnits || !discountAmount) {
+    alert("Please fill in all fields.");
+    return;
+  }
+
+  try {
+    // Prepare the data to be saved
+    const discountData = {
+      projectId,
+      flatId,
+      customerId,
+      discountUnits: parseInt(discountUnits), // Ensure discount units is an integer
+      discountAmount: parseFloat(discountAmount), // Ensure discount amount is a float
+      timestamp: new Date().toISOString(),
+    };
+
+    if (isEditing) {
+      // Update the discount document if we are editing
+      await updateDiscount(currentDiscountId, discountData);
+    } else {
+      // Submit data to the Firestore discounts collection if we are applying a new discount
+      await addDoc(collection(db, "discounts"), discountData);
+    }
+
+    alert(isEditing ? "Discount updated successfully!" : "Discount applied successfully!");
+
+    // Reset the form and button text
+    resetForm();
+
+    // Reload the discount list to show the newly added discount without page refresh
+    loadDiscounts();
+
+  } catch (err) {
+    console.error("Error applying discount:", err);
+    alert("There was an error applying the discount. Please try again.");
+  }
+});
+
+
+// Update flat data after applying a discount (for example, reduce the available units)
+async function updateFlatDataAfterDiscount(projectId, flatId, discountUnits) {
+  const projectDocRef = doc(db, "projects", projectId);
+  const projectDocSnap = await getDoc(projectDocRef);
+
+  if (projectDocSnap.exists()) {
+    const projectData = projectDocSnap.data();
+    const flats = projectData.flats;
+
+    // Find the flat by label (or use any other criteria to identify it)
+    const flat = flats.find(flat => flat.label === flatId);
+
+    if (flat) {
+      const newSoldUnits = flat.soldUnits + discountUnits;
+
+      // Update the flat's sold units and potentially other fields
+      await updateDoc(doc(db, "projects", projectId), {
+        "flats": flats.map(f => 
+          f.label === flatId ? { ...f, soldUnits: newSoldUnits } : f
+        )
+      });
+
+      console.log("Flat updated successfully.");
+    }
+  } else {
+    console.log("No such project!");
+  }
+}
+
+// Reset the form and button text after apply or update
+function resetForm() {
+  projectSelect.value = "";
+  flatSelect.value = "";
+  customerSelect.value = "";
+  discountUnitsInput.value = "";
+  applyDiscountBtn.textContent = "Apply Discount"; // Reset the button text
+  isEditing = false; // Reset the edit flag
+  currentDiscountId = null; // Reset the current discount ID
+}
+
+// Function to load flats based on the selected project
+// Rename the function to avoid conflict
+async function loadFlatsForProjectSelection(projectId) {
+  const flatSelect = document.getElementById("flatSelect");
+
+  // Disable the flat select dropdown until the flats are loaded
+  flatSelect.disabled = true;
+  flatSelect.innerHTML = '<option value="">Select Flat</option>';  // Clear any existing options
+
+  if (!projectId) {
+    return; // If no project is selected, do nothing
+  }
+
+  try {
+    // Fetch the selected project from Firestore
+    const projectDocRef = doc(db, "projects", projectId);
+    const projectDocSnap = await getDoc(projectDocRef);
+
+    if (projectDocSnap.exists()) {
+      const projectData = projectDocSnap.data();
+      const flats = projectData.flats;  // Get the flats array from the project
+
+      // Iterate over the flats and create options
+      flats.forEach(flat => {
+        const option = document.createElement("option");
+        option.value = flat.label;  // Set the option value to the flat label
+        option.textContent = `${flat.label} - ${flat.price}`;  // Display the flat label and price
+        flatSelect.appendChild(option);  // Append the option to the flatSelect dropdown
+      });
+
+      // Enable the flat select dropdown after loading flats
+      flatSelect.disabled = false;
+
+    } else {
+      console.log("No such project!");
+    }
+  } catch (err) {
+    console.error("Error fetching project data: ", err);
+  }
+}
+
+
+// Function to load and display discounts from Firestore with filters
+async function loadDiscounts(filters = {}) {
+  try {
+    const querySnapshot = await getDocs(collection(db, "discounts"));
+    const discountListContainer = document.getElementById("discountListContainer");
+    discountListContainer.innerHTML = ""; // Clear existing discounts
+
+    // Loop through each discount document and filter based on the criteria
+    querySnapshot.forEach(async (docSnap) => {
+      const discount = docSnap.data();
+      const discountId = docSnap.id;
+
+      // Fetch the project, flat, and customer data
+      const projectName = await getProjectName(discount.projectId);
+      const flatLabel = await getFlatLabel(discount.projectId, discount.flatId);
+      const customerName = await getCustomerName(discount.customerId);
+
+      // Apply filters
+      if (
+        (filters.project && !projectName.toLowerCase().includes(filters.project.toLowerCase())) ||
+        (filters.flat && !flatLabel.toLowerCase().includes(filters.flat.toLowerCase())) ||
+        (filters.customer && !customerName.toLowerCase().includes(filters.customer.toLowerCase())) ||
+        (filters.discountAmount && discount.discountAmount != filters.discountAmount) ||
+        (filters.timestamp && new Date(discount.timestamp).toISOString().split('T')[0] !== filters.timestamp)
+      ) {
+        return; // Skip this discount if it does not match the filter
+      }
+
+      // Create a discount card with a cleaner layout
+      const discountCard = document.createElement("div");
+      discountCard.classList.add("discount-card");
+
+      // Add the discount details with a structured layout
+      discountCard.innerHTML = `
+        <div class="discount-info">
+          <div><strong>Project:</strong> ${projectName}</div>
+          <div><strong>Flat:</strong> ${flatLabel}</div>
+          <div><strong>Customer:</strong> ${customerName}</div>
+          <div><strong>Discount Units:</strong> ${discount.discountUnits}</div>
+          <div><strong>Discount Amount:</strong> ${discount.discountAmount}</div>
+          <div><strong>Timestamp:</strong> ${new Date(discount.timestamp).toLocaleString()}</div>
+        </div>
+        <div class="discount-actions">
+          <button class="edit-discount" data-id="${discountId}">Edit</button>
+          <button class="delete-discount" data-id="${discountId}">Delete</button>
+        </div>
+      `;
+
+      // Append the discount card to the list
+      discountListContainer.appendChild(discountCard);
+
+      // Add event listeners for editing and deleting discounts
+      document.querySelectorAll(".edit-discount").forEach(button => {
+        button.addEventListener("click", editDiscount);
+      });
+
+      document.querySelectorAll(".delete-discount").forEach(button => {
+        button.addEventListener("click", deleteDiscount);
+      });
+    });
+  } catch (err) {
+    console.error("Error loading discounts: ", err);
+  }
+}
+
+// Event listener for Apply Filters button
+document.getElementById("applyFiltersBtn").addEventListener("click", () => {
+  const filters = {
+    project: document.getElementById("filterProject").value,
+    flat: document.getElementById("filterFlat").value,
+    customer: document.getElementById("filterCustomer").value,
+    discountAmount: parseFloat(document.getElementById("filterDiscountAmount").value) || null,
+    timestamp: document.getElementById("filterTimestamp").value || null,
+  };
+
+  // Call the loadDiscounts function with the filters
+  loadDiscounts(filters);
+});
+document.getElementById("clearFiltersBtn").addEventListener("click", () => {
+  // Reset filter inputs
+  document.getElementById("filterProject").value = "";
+  document.getElementById("filterFlat").value = "";
+  document.getElementById("filterCustomer").value = "";
+  document.getElementById("filterDiscountAmount").value = "";
+  document.getElementById("filterTimestamp").value = "";
+
+  // Load all discounts without filters
+  loadDiscounts();
+});
+
+// Load all discounts on initial page load
+loadDiscounts();
+
+
+
+// Helper function to fetch project name by project ID
+async function getProjectName(projectId) {
+  try {
+    const projectDocRef = doc(db, "projects", projectId);
+    const projectDocSnap = await getDoc(projectDocRef);
+    
+    if (projectDocSnap.exists()) {
+      const projectData = projectDocSnap.data();
+      return projectData.name;  // Assuming the project name is stored in 'name' field
+    } else {
+      console.log("No such project!");
+      return "Unknown Project";
+    }
+  } catch (err) {
+    console.error("Error fetching project data: ", err);
+    return "Unknown Project";
+  }
+}
+
+// Helper function to fetch flat label by projectId and flatId
+async function getFlatLabel(projectId, flatId) {
+  try {
+    const projectDocRef = doc(db, "projects", projectId);
+    const projectDocSnap = await getDoc(projectDocRef);
+
+    if (projectDocSnap.exists()) {
+      const projectData = projectDocSnap.data();
+      const flat = projectData.flats.find(f => f.label === flatId);  // Assuming 'label' is the identifier for the flat
+      return flat ? flat.label : "Unknown Flat";  // Return flat label or fallback message
+    } else {
+      console.log("No such project!");
+      return "Unknown Flat";
+    }
+  } catch (err) {
+    console.error("Error fetching flat data: ", err);
+    return "Unknown Flat";
+  }
+}
+
+// Helper function to fetch customer name by customerId
+async function getCustomerName(customerId) {
+  try {
+    const customerDocRef = doc(db, "customers", customerId);
+    const customerDocSnap = await getDoc(customerDocRef);
+
+    if (customerDocSnap.exists()) {
+      const customerData = customerDocSnap.data();
+      return customerData.name;  // Assuming the customer name is stored in 'name' field
+    } else {
+      console.log("No such customer!");
+      return "Unknown Customer";
+    }
+  } catch (err) {
+    console.error("Error fetching customer data: ", err);
+    return "Unknown Customer";
+  }
+}
+
+// Function to edit a discount
+async function editDiscount(event) {
+  const discountId = event.target.getAttribute("data-id");
+
+  // Fetch the discount data from Firestore
+  const discountDocRef = doc(db, "discounts", discountId);
+  const discountDocSnap = await getDoc(discountDocRef);
+
+  if (discountDocSnap.exists()) {
+    const discountData = discountDocSnap.data();
+
+    // Pre-fill the form with the discount data
+    projectSelect.value = discountData.projectId;
+    flatSelect.value = discountData.flatId;
+    customerSelect.value = discountData.customerId;
+    discountUnitsInput.value = discountData.discountUnits;
+
+    // Change the button text to "Update"
+    applyDiscountBtn.textContent = "Update Discount";
+
+    // Set flags and current discount ID for later update
+    isEditing = true;
+    currentDiscountId = discountId;
+
+    // Load flats for the selected project
+    loadFlatsForSelectedProject(discountData.projectId);  // Load flats for the selected project
+  } else {
+    console.log("No such discount record!");
+  }
+}
+
+async function updateDiscount(discountId, discountData) {
+  try {
+    // Update the discount document in Firestore
+    await updateDoc(doc(db, "discounts", discountId), discountData);
+
+    alert("Discount updated successfully!");
+
+    // Optionally update the flat data or project data after updating the discount
+    await updateFlatDataAfterDiscount(discountData.projectId, discountData.flatId, discountData.discountUnits);
+
+    // Reload discounts to reflect changes
+    loadDiscounts();
+
+    // Reset the form
+    resetForm();
+
+  } catch (err) {
+    console.error("Error updating discount:", err);
+    alert("There was an error updating the discount. Please try again.");
+  }
+}
+
+
+// Function to delete a discount
+async function deleteDiscount(event) {
+  const discountId = event.target.getAttribute("data-id");
+
+  try {
+    // Delete the discount document from Firestore
+    await deleteDoc(doc(db, "discounts", discountId));
+    alert("Discount deleted successfully!");
+
+    // Reload discounts to reflect the changes
+    loadDiscounts();
+  } catch (err) {
+    console.error("Error deleting discount:", err);
+    alert("There was an error deleting the discount. Please try again.");
+  }
+}
+
+function updateFlatsSoldAndAvailable(soldFlats, availableFlats) {
+  const soldElement = document.getElementById("totalFlatsSold"); // Assuming you have an element for displaying sold flats
+  const availableElement = document.getElementById("totalFlatsAvailable"); // Same for available flats
+
+  if (soldElement) {
+    soldElement.textContent = `Total Sold Flats and Garages: ${soldFlats}`;
+  }
+  if (availableElement) {
+    availableElement.textContent = `Total Available Flats and Garages: ${availableFlats}`;
+  }
+}
+
+// New function to count the total number of liabilities
+function countTotalLiabilities(data) {
+  const totalLiabilitiesCount = data.length;  // Count of liabilities
+  document.getElementById('totalLiabilitiesCount').textContent = `📋 ${totalLiabilitiesCount}`; // Updated ID
+  updateTotalAssetsWidget();
+}
+
+// New function to count the total number of shareholders
+function countTotalShareholders(data) {
+  const totalEquityCount = data.length;  // Count of shareholders
+  document.getElementById('totalShareholdersCount').textContent = `👥 ${totalEquityCount}`; // Updated ID
+  updateTotalAssetsWidget();
+}
+
+// Example of how you might call these functions after fetching data
+onSnapshot(liabilitiesRef, (snapshot) => {
+  liabilities = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  countTotalLiabilities(liabilities);  // Update liabilities count
+});
+
+onSnapshot(equityRef, (snapshot) => {
+  equities = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  countTotalShareholders(equities);  // Update equity count
+});
+
+
+// Request Permission to Send Notifications
+async function requestPermission() {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      console.log("Notification permission granted.");
+      // Get the FCM token
+      const token = await getToken(messaging, {
+        vapidKey: "BCFIbS2L__7llWuIxHkJed7HMpQb7mpMFRJ6IatQPUXX3f6l8NrIWDpxGTGaK01JBfBXrtUSngIQQ9QuKFbseG0"
+      });
+      console.log("User FCM Token:", token);
+      // Save token to Firestore or your server
+    } else {
+      console.error("Notification permission denied.");
+    }
+  } catch (error) {
+    console.error("Error requesting notification permission:", error);
+  }
+}
+
+// Open Modal
+window.openNotificationModal = () => {
+  document.getElementById('notificationModal').classList.remove('hidden');
+};
+
+// Close Modal
+window.closeNotificationModal = () => {
+  document.getElementById('notificationModal').classList.add('hidden');
+};
+
+// Helper Function: Read Image File as Base64
+const readFileAsBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result.split(',')[1]); // Get base64 string without the prefix
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+// Send Notification to Firestore and via FCM
+window.sendNotification = async () => {
+  const title = document.getElementById('notificationTitle').value.trim();
+  const body = document.getElementById('notificationBody').value.trim();
+  const fileInput = document.getElementById('notificationImage');
+  const file = fileInput.files[0];
+
+  if (!title || !body) {
+    alert("Please fill in title and body.");
+    return;
+  }
+
+  try {
+    let base64Image = "";
+
+    if (file) {
+      base64Image = await readFileAsBase64(file);
+    }
+
+    // Save notification to Firestore
+    await addDoc(collection(db, "notifications"), {
+      title,
+      body,
+      base64Image,
+      timestamp: Date.now()
+    });
+
+    console.log("Notification saved in Firestore!");
+
+    // Send push notification via FCM
+    const serverKey = "BCjUFsxc4WCpyEAmKI4S8nxP8CNnlLAbQG7FHn_ne8ajATXfOXNrUm4SKy3BtwPqlWlifXkhfgegl6gwZcU9nyE"; // FCM Server Key from Firebase Console
+
+    const response = await fetch("https://fcm.googleapis.com/fcm/send", {
+      method: "POST",
+      headers: {
+        "Authorization": `key=${serverKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        notification: {
+          title,
+          body,
+          image: base64Image ? `data:image/jpeg;base64,${base64Image}` : undefined
+        },
+        to: "/topics/all" // Assuming you subscribed all users to 'all' topic
+      })
+    });
+
+    const data = await response.json();
+    console.log("Notification Push Response:", data);
+
+    alert("Notification sent successfully!");
+    closeNotificationModal();
+    document.getElementById('notificationTitle').value = "";
+    document.getElementById('notificationBody').value = "";
+    fileInput.value = "";
+
+  } catch (error) {
+    console.error("Error sending notification:", error);
+    alert("Failed to send notification. See console for details.");
+  }
+};
+
+// Request permission when the page is loaded
+requestPermission();
+
+// Handle foreground notifications (when the page is in focus)
+onMessage(messaging, (payload) => {
+  console.log('Received foreground message:', payload);
+  const { title, body } = payload.notification;
+  alert(`Notification received: ${title} - ${body}`);
+});
+
+// Register the service worker as a module
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js', { type: 'module' })
+    .then(function(registration) {
+      console.log("Service Worker registered with scope:", registration.scope);
+    })
+    .catch(function(error) {
+      console.error("Service Worker registration failed:", error);
+    });
+}
+
+// Initial fetch to display all projects
+fetchProjects();
+</script>
+
+
+<script>
+  document.getElementById("logoutBtn").addEventListener("click", async function () {
+    // Show the logout animation
+    showLogoutAnimation();
+
+    // Wait 2 seconds, then show the goodbye message
+    setTimeout(() => {
+      showGoodbyeMessage();
+
+      // Logout after another 2 seconds
+      setTimeout(() => {
+        // Call Firebase logout function
+        logoutUserWithFirebase(); 
+      }, 2000);
+    }, 2000);
+  });
+
+  function showLogoutAnimation() {
+    // Check if the logout animation element exists before modifying it
+    const logoutAnimation = document.getElementById("logoutAnimation");
+    if (logoutAnimation) {
+      logoutAnimation.classList.remove("hidden");
+    } else {
+      console.error("Logout animation element not found!");
+    }
+  }
+
+  function showGoodbyeMessage() {
+    // Check if the logout animation and goodbye message elements exist before modifying them
+    const logoutAnimation = document.getElementById("logoutAnimation");
+    const goodbyeMessage = document.getElementById("goodbyeMessage");
+
+    if (logoutAnimation) {
+      logoutAnimation.classList.add("hidden");
+    } else {
+      console.error("Logout animation element not found!");
+    }
+
+    if (goodbyeMessage) {
+      goodbyeMessage.classList.remove("hidden");
+    } else {
+      console.error("Goodbye message element not found!");
+    }
+  }
+
+
+//scroll animation
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const targetId = this.getAttribute('href');
+    const target = document.querySelector(targetId);
+
+    if (!target) return;
+
+    const startY = window.pageYOffset;
+    const endY = target.getBoundingClientRect().top + startY - 60; // Adjust if you have a fixed top bar
+    const distance = endY - startY;
+    const duration = 2500; // 2.5 seconds (longer = more natural)
+    let startTime = null;
+
+    function animation(currentTime) {
+      if (!startTime) startTime = currentTime;
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+
+      // Smoother easing
+      const easing = easeInOutHeavy(progress);
+
+      window.scrollTo(0, startY + (distance * easing));
+
+      if (timeElapsed < duration) {
+        requestAnimationFrame(animation);
+      }
+    }
+
+    // A smoother car feeling: slow start -> faster -> slow stop
+    function easeInOutHeavy(t) {
+      return t < 0.5
+        ? 4 * t * t * t
+        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    requestAnimationFrame(animation);
+  });
+});
+
+// Close sidebar when a nav link is clicked (on mobile)
+document.querySelectorAll('nav a').forEach(link => {
+  link.addEventListener('click', () => {
+    // Only trigger on small screens (when hamburger is active)
+    if (window.innerWidth < 1024) { // lg breakpoint in Tailwind
+      document.getElementById('hamburgerBtn').click();
+    }
+  });
+});
+
+
+</script>  
+
+
+<!--Add the following script at the bottom of the web page (before </body></html>)-->
+<script type="text/javascript">function add_chatinline(){var hccid=98596433;var nt=document.createElement("script");nt.async=true;nt.src="https://mylivechat.com/chatinline.aspx?hccid="+hccid;var ct=document.getElementsByTagName("script")[0];ct.parentNode.insertBefore(nt,ct);}
+  add_chatinline();</script>
+
+</body>
+</html>

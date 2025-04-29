@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Majestic Estates – Register</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .floating-label input:focus ~ label,
+    .floating-label input:not(:placeholder-shown) ~ label {
+      top: -10px;
+      left: 10px;
+      font-size: 0.75rem;
+      color: #0ea5e9;
+    }
+
+    .floating-label label {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      transition: 0.3s ease;
+      background: white;
+      padding: 0 5px;
+      pointer-events: none;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.3);
+      border-radius: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .transition-step {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .transition-step.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .social-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body class="bg-cover bg-center bg-no-repeat bg-fixed" style="background-image: url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1470&q=80');">
+
+  <div class="min-h-screen flex items-center justify-center px-4 py-12">
+    <div class="glass-card w-full max-w-2xl p-10 space-y-6 transition-all">
+
+      <!-- Progress Bar -->
+      <div class="w-full bg-gray-300 rounded-full h-2">
+        <div id="progress-bar" class="bg-sky-500 h-2 rounded-full transition-all duration-500 ease-in-out" style="width: 33%;"></div>
+      </div>
+
+      <!-- Title -->
+      <h2 class="text-4xl font-bold text-center text-white font-display drop-shadow-xl">Create Your Jaya Construction Customer Account</h2>
+
+      <!-- Form -->
+      <form id="registration-form" class="space-y-6 relative overflow-hidden">
+
+        <!-- Step 1 -->
+        <div class="step transition-step active space-y-6" id="step-1">
+          <div class="floating-label relative">
+            <input type="text" id="fullname" required placeholder=" " class="w-full px-4 py-3 bg-white/80 rounded-xl shadow border border-gray-300 focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-transparent">
+            <label for="fullname">Full Name</label>
+          </div>
+          <div class="floating-label relative">
+            <input type="email" id="email" required placeholder=" " class="w-full px-4 py-3 bg-white/80 rounded-xl shadow border border-gray-300 focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-transparent">
+            <label for="email">Email</label>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step transition-step hidden space-y-6" id="step-2">
+          <div class="floating-label relative">
+            <input type="password" id="password" required placeholder=" " class="w-full px-4 py-3 bg-white/80 rounded-xl shadow border border-gray-300 focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-transparent">
+            <label for="password">Password</label>
+          </div>
+          <div class="floating-label relative">
+            <input type="password" id="confirm" required placeholder=" " class="w-full px-4 py-3 bg-white/80 rounded-xl shadow border border-gray-300 focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-transparent">
+            <label for="confirm">Confirm Password</label>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step transition-step hidden space-y-6" id="step-3">
+          <div class="floating-label relative">
+            <input type="tel" id="phone" placeholder=" " class="w-full px-4 py-3 bg-white/80 rounded-xl shadow border border-gray-300 focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-transparent">
+            <label for="phone">Phone Number (optional)</label>
+          </div>
+          <div class="flex items-center space-x-3 text-white">
+            <input type="checkbox" id="terms" class="accent-sky-500" required>
+            <label for="terms">I agree to the <a href="#" class="underline">terms & privacy</a></label>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-between pt-2">
+          <button type="button" id="prev-btn" class="hidden px-5 py-2 rounded-lg bg-white/70 text-gray-900 font-semibold hover:bg-white/90 shadow">Back</button>
+          <button type="button" id="next-btn" class="px-6 py-2 rounded-lg bg-sky-600 text-white font-semibold hover:bg-sky-700 shadow transition-all">Next</button>
+        </div>
+
+        <!-- Social Login -->
+        <div class="text-center pt-6 text-white">
+          <p class="text-sm mb-3">Or sign up with</p>
+          <div class="flex justify-center gap-4">
+            <button class="social-btn bg-black px-4 py-2 rounded-lg flex items-center gap-2 shadow transition-all">
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5" />
+              <span>Google</span>
+            </button>
+            <button class="social-btn bg-black px-4 py-2 rounded-lg flex items-center gap-2 shadow transition-all">
+              <img src="https://img.icons8.com/?size=128&id=118501&format=png" class="w-5" />
+              <span>Facebook</span>
+            </button>
+            <button class="social-btn bg-black px-4 py-2 rounded-lg flex items-center gap-2 shadow transition-all">
+              <img src="https://img.icons8.com/?size=96&id=ZS86z3goveDT&format=gif" class="w-5" />
+              <span>Apple</span>
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 1;
+    const totalSteps = 3;
+
+    const showStep = (step) => {
+      document.querySelectorAll('.step').forEach((el, idx) => {
+        el.classList.add('hidden');
+        el.classList.remove('active');
+        if (idx === step - 1) {
+          el.classList.remove('hidden');
+          setTimeout(() => el.classList.add('active'), 10);
+        }
+      });
+      document.getElementById("prev-btn").classList.toggle("hidden", step === 1);
+      document.getElementById("next-btn").textContent = step === totalSteps ? "Register" : "Next";
+      document.getElementById("progress-bar").style.width = `${(step / totalSteps) * 100}%`;
+    };
+
+    document.getElementById("next-btn").addEventListener("click", () => {
+      if (currentStep < totalSteps) {
+        currentStep++;
+        showStep(currentStep);
+      } else {
+        document.getElementById("registration-form").submit();
+      }
+    });
+
+    document.getElementById("prev-btn").addEventListener("click", () => {
+      if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    });
+
+    showStep(currentStep);
+  </script>
+<!--Add the following script at the bottom of the web page (before </body></html>)-->
+<script type="text/javascript">function add_chatinline(){var hccid=98596433;var nt=document.createElement("script");nt.async=true;nt.src="https://mylivechat.com/chatinline.aspx?hccid="+hccid;var ct=document.getElementsByTagName("script")[0];ct.parentNode.insertBefore(nt,ct);}
+  add_chatinline();</script>
+</body>
+</html>

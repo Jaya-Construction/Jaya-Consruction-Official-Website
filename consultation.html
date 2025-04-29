@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>jaya construction | Consultation Request</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          animation: {
+            glow: "pulse 2s ease-in-out infinite",
+            'fade-in': 'fadeIn 1s ease-out'
+          },
+          keyframes: {
+            fadeIn: {
+              from: { opacity: 0, transform: 'translateY(20px)' },
+              to: { opacity: 1, transform: 'translateY(0)' }
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body class="bg-white dark:bg-gray-950 text-gray-800 dark:text-white transition duration-500">
+
+  <!-- Page Wrapper -->
+  <div class="min-h-screen flex items-center justify-center px-4 py-12">
+    <div class="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl max-w-2xl w-full p-8 animate-fade-in">
+
+      <!-- Header -->
+      <h1 class="text-3xl font-bold mb-2 text-center">Request a Private Consultation</h1>
+      <p class="text-center text-gray-500 dark:text-gray-400 mb-6">Let us know your goals. We'll align our expertise with your vision.</p>
+
+      <!-- Formspree Integrated Form -->
+      <form action="https://formspree.io/f/mgvagrdp"
+            method="POST"
+            enctype="multipart/form-data"
+            id="consultation-form"
+            onsubmit="return validateForm()"
+            class="space-y-6">
+
+        <!-- Full Name -->
+        <div class="relative">
+          <input type="text" name="name" required placeholder="Full Name" class="peer w-full border rounded-lg px-4 py-3 bg-transparent dark:text-white text-gray-900 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+
+        <!-- Email -->
+        <div class="relative">
+          <input type="email" name="email" required placeholder="Email Address" class="peer w-full border rounded-lg px-4 py-3 bg-transparent dark:text-white text-gray-900 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+
+        <!-- Budget -->
+        <div class="relative">
+          <input type="number" name="budget" required placeholder="Investment Budget (INR)" class="peer w-full border rounded-lg px-4 py-3 bg-transparent dark:text-white text-gray-900 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+
+        <!-- Timeline -->
+        <div class="relative">
+          <select name="timeline" required class="w-full border rounded-lg px-4 py-3 bg-white dark:bg-gray-800 text-gray-800 dark:text-white dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="" disabled selected>Select Timeline</option>
+            <option>Immediately</option>
+            <option>1-3 Months</option>
+            <option>3-6 Months</option>
+            <option>6+ Months</option>
+          </select>
+        </div>
+
+        <!-- Preferred Consultation Date -->
+        <div class="relative">
+          <input type="date" name="preferred_date" required class="w-full border rounded-lg px-4 py-3 bg-white dark:bg-gray-200 text-gray-900 dark:text-gray-900 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+
+        <!-- File Upload -->
+        <div class="relative">
+          <label class="block text-gray-600 dark:text-gray-300 mb-2 font-medium">Upload Supporting Document (optional)</label>
+          <input type="file" name="document" accept=".pdf,.doc,.jpg,.png" class="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:border-0 file:rounded-lg file:bg-indigo-600 file:text-white file:font-semibold hover:file:bg-indigo-700 transition duration-300">
+        </div>
+
+        <!-- Goals -->
+        <div class="relative">
+          <textarea name="goals" rows="4" placeholder="What are your investment goals?" class="peer w-full border rounded-lg px-4 py-3 bg-transparent text-gray-900 dark:text-white dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+        </div>
+
+        <!-- reCAPTCHA -->
+        <div class="g-recaptcha" data-sitekey="6LdNCB4rAAAAAL5ICWWz95urUfxKLCh7hQpg_vhL"></div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition duration-300 shadow-md hover:shadow-xl">
+          Request Consultation
+        </button>
+      </form>
+
+      <!-- Toast Message -->
+      <div id="toast" class="hidden mt-6 text-center text-green-500 font-medium">✅ Request submitted successfully!</div>
+
+      <!-- Dark Mode Toggle -->
+      <div class="mt-8 text-center">
+        <button onclick="document.documentElement.classList.toggle('dark')" class="text-sm text-indigo-500 hover:underline">Toggle Light/Dark Mode</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Validate reCAPTCHA before submitting -->
+  <script>
+    function validateForm() {
+      const response = grecaptcha.getResponse();
+      if (!response) {
+        alert('Please verify that you are not a robot.');
+        return false; // prevent form submission
+      }
+
+      const toast = document.getElementById('toast');
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 5000);
+
+      return true; // allow form to submit
+    }
+  </script>
+
+  <!-- Optional live chat script -->
+  <script type="text/javascript">
+    function add_chatinline() {
+      var hccid = 98596433;
+      var nt = document.createElement("script");
+      nt.async = true;
+      nt.src = "https://mylivechat.com/chatinline.aspx?hccid=" + hccid;
+      var ct = document.getElementsByTagName("script")[0];
+      ct.parentNode.insertBefore(nt, ct);
+    }
+    add_chatinline();
+  </script>
+
+</body>
+</html>
+

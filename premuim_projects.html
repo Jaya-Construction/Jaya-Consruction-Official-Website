@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jaya Construction – Premium Properties</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <style>
+    /* Smooth fade-in */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Card hover effect */
+    .lux-card {
+      transition: all 0.4s ease-in-out;
+    }
+
+    .lux-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+  </style>
+</head>
+<body class="bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+
+<!-- HEADER -->
+<header class="sticky top-0 bg-black bg-opacity-80 backdrop-blur-lg shadow-lg z-50 px-6 py-4">
+  <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <h1 class="text-3xl font-extrabold text-yellow-400">Jaya Construction</h1>
+    <nav class="space-x-6 text-lg">
+      <a href="#projects" class="hover:text-yellow-500 transition">Projects</a>
+      <a href="#about" class="hover:text-yellow-500 transition">About</a>
+      <a href="#contact" class="hover:text-yellow-500 transition">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO SECTION WITH ANIMATED BACKGROUND -->
+<section class="relative h-screen flex items-center justify-center text-center overflow-hidden">
+    <!-- Animated Background Video or Image -->
+    <div class="absolute inset-0 z-0">
+      <img
+        src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2100&q=80"
+        alt="Luxury Background"
+        class="w-full h-full object-cover scale-125 animate-zoomSlow"
+      />
+      <div class="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm"></div>
+    </div>
+  
+    <!-- Hero Content -->
+    <div class="relative z-10 max-w-4xl text-white px-6 fade-in">
+      <h2 class="text-5xl font-extrabold text-yellow-400 drop-shadow-xl mb-6 animate-fadeDown">Discover Unmatched Luxury Living</h2>
+      <p class="text-lg text-gray-200 mb-8 animate-fadeIn">Jaya Construction presents the finest collection of premium properties curated just for you.</p>
+      <a href="#projects" class="bg-yellow-500 text-black px-8 py-4 text-lg font-semibold rounded shadow-lg hover:shadow-yellow-400 hover:bg-yellow-400 transition-all duration-300">
+        Explore Properties
+      </a>
+    </div>
+  </section>
+  <style>
+    @keyframes zoomSlow {
+      0% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+  
+    .animate-zoomSlow {
+      animation: zoomSlow 20s ease-in-out forwards;
+    }
+  
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  
+    .animate-fadeDown {
+      animation: fadeDown 1.2s ease forwards;
+    }
+  
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  
+    .animate-fadeIn {
+      animation: fadeIn 2s ease-in forwards;
+    }
+  </style>  
+
+<!-- PROJECT SHOWCASE -->
+<section id="projects" class="py-24 px-6 bg-gray-900">
+  <div class="max-w-7xl mx-auto text-center">
+    <h3 class="text-4xl font-bold text-yellow-400 mb-12">Premium Properties</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+      <!-- Property Cards -->
+      <!-- Repeat this block with different images & links -->
+      <a href="projects/project1.html" class="lux-card rounded-xl overflow-hidden glass hover:shadow-yellow-400 transition duration-300">
+        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750" alt="Property 1" class="w-full h-60 object-cover" />
+        <div class="p-5">
+          <h4 class="text-2xl font-bold mb-2">Oceanview Mansion</h4>
+          <p class="text-sm text-gray-300">Located at the cliffs of Monaco, 6BHK + Infinity Pool + Smart Automation</p>
+        </div>
+      </a>
+      <a href="projects/project2.html" class="lux-card rounded-xl overflow-hidden glass">
+        <img src="https://source.unsplash.com/400x300/?villa,interior" alt="Property 2" class="w-full h-60 object-cover" />
+        <div class="p-5">
+          <h4 class="text-2xl font-bold mb-2">Royal Grand Villa</h4>
+          <p class="text-sm text-gray-300">Beirut city view, ultra-modern villa with green terrace & basement theater</p>
+        </div>
+      </a>
+      <a href="projects/project3.html" class="lux-card rounded-xl overflow-hidden glass">
+        <img src="https://source.unsplash.com/400x300/?penthouse,city" alt="Property 3" class="w-full h-60 object-cover" />
+        <div class="p-5">
+          <h4 class="text-2xl font-bold mb-2">Skyline Penthouse</h4>
+          <p class="text-sm text-gray-300">Dubai Marina 360° view, 5BHK duplex, rooftop pool, helipad access</p>
+        </div>
+      </a>
+      <a href="projects/project4.html" class="lux-card rounded-xl overflow-hidden glass">
+        <img src="https://source.unsplash.com/400x300/?mansion,modern" alt="Property 4" class="w-full h-60 object-cover" />
+        <div class="p-5">
+          <h4 class="text-2xl font-bold mb-2">The Imperial Mansion</h4>
+          <p class="text-sm text-gray-300">8BHK palace estate in Los Angeles, 10000 sqft of landscaped gardens</p>
+        </div>
+      </a>
+      <a href="projects/project5.html" class="lux-card rounded-xl overflow-hidden glass">
+        <img src="https://source.unsplash.com/400x300/?modern,home" alt="Property 5" class="w-full h-60 object-cover" />
+        <div class="p-5">
+          <h4 class="text-2xl font-bold mb-2">Green Earth Villa</h4>
+          <p class="text-sm text-gray-300">Eco-friendly 5BHK in Bali with waterfall entry and energy smart grid</p>
+        </div>
+      </a>
+      <a href="projects/project6.html" class="lux-card rounded-xl overflow-hidden glass">
+        <img src="https://source.unsplash.com/400x300/?estate,luxury" alt="Property 6" class="w-full h-60 object-cover" />
+        <div class="p-5">
+          <h4 class="text-2xl font-bold mb-2">Zen Retreat</h4>
+          <p class="text-sm text-gray-300">Peaceful hilltop haven with spa, meditation dome and valley views</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="py-20 px-6 bg-gray-800">
+  <div class="max-w-5xl mx-auto text-center fade-in">
+    <h3 class="text-3xl font-bold text-yellow-400 mb-6">Why Choose Jaya Construction?</h3>
+    <p class="text-gray-300 text-lg">We handpick each premium property to ensure top-tier location, build quality, and long-term value. Every estate is crafted for those who value the extraordinary.</p>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="py-20 px-6 bg-black">
+  <div class="max-w-3xl mx-auto text-center">
+    <h3 class="text-3xl font-bold text-yellow-400 mb-6">Get in Touch</h3>
+    <form class="grid gap-6" action="https://formspree.io/f/mjkynklk" method="POST">
+      <input type="text" name="name" placeholder="Full Name" class="px-4 py-3 rounded bg-gray-800 border border-gray-600 text-white" required />
+      <input type="email" name="email" placeholder="Email Address" class="px-4 py-3 rounded bg-gray-800 border border-gray-600 text-white" required />
+      <input type="text" name="project" placeholder="Project Name Interested In" class="px-4 py-3 rounded bg-gray-800 border border-gray-600 text-white" required />
+      <textarea name="message" rows="4" placeholder="Message" class="px-4 py-3 rounded bg-gray-800 border border-gray-600 text-white"></textarea>
+      <div class="g-recaptcha my-4" data-sitekey="6LdMCB4rAAAAAI9CILPX29S-izb7I4cc4h5xjz5g"></div>
+      <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded transition">Send Message</button>
+    </form>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer class="text-center py-6 bg-gray-900 text-gray-400">
+  &copy; 2025 Jaya Construction. Crafted for the elite.
+</footer>
+<!--Add the following script at the bottom of the web page (before </body></html>)-->
+<script type="text/javascript">function add_chatinline(){var hccid=98596433;var nt=document.createElement("script");nt.async=true;nt.src="https://mylivechat.com/chatinline.aspx?hccid="+hccid;var ct=document.getElementsByTagName("script")[0];ct.parentNode.insertBefore(nt,ct);}
+  add_chatinline();</script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Customer Support | Majestic Estates</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          animation: {
+            fadeIn: 'fadeIn 0.8s ease-out',
+          },
+          keyframes: {
+            fadeIn: {
+              from: { opacity: 0, transform: 'translateY(10px)' },
+              to: { opacity: 1, transform: 'translateY(0)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition duration-500">
+
+  <div class="min-h-screen px-4 py-12 max-w-6xl mx-auto">
+    <h1 class="text-4xl font-bold text-center mb-10">Customer Support</h1>
+    <p class="text-center text-gray-500 dark:text-gray-400 mb-12">Need assistance? Reach out to one of our available support executives.</p>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fadeIn">
+
+      <!-- Executive Card -->
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md flex flex-col items-center text-center">
+        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Executive Photo" class="w-24 h-24 rounded-full mb-4 shadow-lg">
+        <h2 class="text-xl font-semibold">James Carter</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Senior Consultant</p>
+        <div class="flex space-x-4">
+          <a href="tel:+1234567890" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-full text-sm shadow">📞 Call</a>
+          <a href="mailto:james@majesticestates.com" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-full text-sm shadow">✉️ Email</a>
+          <a href="https://wa.me/1234567890" target="_blank" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-full text-sm shadow">💬 WhatsApp</a>
+        </div>
+      </div>
+
+      <!-- Executive Card -->
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md flex flex-col items-center text-center">
+        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Executive Photo" class="w-24 h-24 rounded-full mb-4 shadow-lg">
+        <h2 class="text-xl font-semibold">Amelia Torres</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Client Experience Manager</p>
+        <div class="flex space-x-4">
+          <a href="tel:+1987654321" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-full text-sm shadow">📞 Call</a>
+          <a href="mailto:amelia@majesticestates.com" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-full text-sm shadow">✉️ Email</a>
+          <a href="https://wa.me/1987654321" target="_blank" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-full text-sm shadow">💬 WhatsApp</a>
+        </div>
+      </div>
+
+      <!-- Executive Card -->
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md flex flex-col items-center text-center">
+        <img src="https://randomuser.me/api/portraits/men/52.jpg" alt="Executive Photo" class="w-24 h-24 rounded-full mb-4 shadow-lg">
+        <h2 class="text-xl font-semibold">Ethan Knight</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Luxury Property Specialist</p>
+        <div class="flex space-x-4">
+          <a href="tel:+1123456789" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-full text-sm shadow">📞 Call</a>
+          <a href="mailto:ethan@majesticestates.com" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-full text-sm shadow">✉️ Email</a>
+          <a href="https://wa.me/1123456789" target="_blank" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-full text-sm shadow">💬 WhatsApp</a>
+        </div>
+      </div>
+
+      <!-- Add more executives as needed -->
+
+    </div>
+
+  <!--live chat instruction-->
+    <div class="mt-12 text-center">
+      <p class="text-gray-500 dark:text-gray-400 mb-4">For immediate assistance, you can also chat with us live:</p>
+      <p class="text-gray-500 dark:text-gray-400 mb-4">Click the button below to start a chat with our support team.</p>
+      <!--Chat button will appear here-->
+      <div class="chatbot-container" id="MyLiveChatContainer"></div>
+
+      <!--Add the following script at the bottom of the web page (before </body></html>)-->
+      <script type="text/javascript">function add_chatbutton(){var hccid=98596433;var nt=document.createElement("script");nt.async=true;nt.src="https://mylivechat.com/chatbutton.aspx?hccid="+hccid;var ct=document.getElementsByTagName("script")[0];ct.parentNode.insertBefore(nt,ct);}
+      add_chatbutton();</script>
+    </div>
+
+    <!-- Dark Mode Toggle -->
+    <div class="mt-12 text-center">
+      <button onclick="document.documentElement.classList.toggle('dark')" class="text-sm text-indigo-500 hover:underline">Toggle Light/Dark Mode</button>
+    </div>
+  </div>
+<!--Add the following script at the bottom of the web page (before </body></html>)-->
+<script type="text/javascript">function add_chatinline(){var hccid=98596433;var nt=document.createElement("script");nt.async=true;nt.src="https://mylivechat.com/chatinline.aspx?hccid="+hccid;var ct=document.getElementsByTagName("script")[0];ct.parentNode.insertBefore(nt,ct);}
+  add_chatinline();</script>
+
+  <style>
+    .chatbot-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .chatbot-container iframe {
+      width: 100%;
+      max-width: 400px;
+      height: 600px;
+      border: none;
+      border-radius: 8px;
+    }
+    .chatbot-container .chat-button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+    .chatbot-container .chat-button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</body>
+</html>

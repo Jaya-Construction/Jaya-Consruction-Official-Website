@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Majestic Estates – Discover Luxury</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .fade-in {
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal {
+      backdrop-filter: blur(6px);
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .project-card:hover {
+      transform: scale(1.02);
+    }
+
+    .modal-content {
+      animation: zoomIn 0.4s ease;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .load-more-btn:hover {
+      background-color: #fcd34d;
+    }
+
+    .dark .project-card {
+      background-color: #1f2937;
+    }
+
+    .dark .modal {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  </style>
+</head>
+<body class="bg-white dark:bg-black text-gray-800 dark:text-white transition-all duration-300">
+
+  <!-- Header -->
+  <header class="bg-white dark:bg-gray-900 shadow sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-display font-semibold text-yellow-500">Jaya Construction Estates</h1>
+      <button id="toggleMode" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+        <svg id="sun-icon" class="w-6 h-6 text-yellow-500 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M12 3v1m0 16v1m8.66-12.66l-.71.71M4.05 19.95l-.71-.71m16.66 0l-.71-.71M4.05 4.05l-.71.71M21 12h1M2 12H1M12 5a7 7 0 100 14 7 7 0 000-14z"></path>
+        </svg>
+        <svg id="moon-icon" class="w-6 h-6 text-gray-900 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Search & Filter -->
+  <section class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex flex-wrap gap-4 items-center justify-between">
+      <input type="text" id="searchInput" placeholder="Search by location…" class="flex-1 px-4 py-3 rounded-lg border dark:bg-gray-800 dark:text-white dark:border-gray-700">
+      <select id="typeFilter" class="px-4 py-3 rounded-lg border dark:bg-gray-800 dark:text-white dark:border-gray-700">
+        <option value="">All Types</option>
+        <option value="villa">Villa</option>
+        <option value="apartment">Apartment</option>
+        <option value="penthouse">Penthouse</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- Project Feed -->
+  <section class="max-w-7xl mx-auto px-4 pb-24">
+    <h2 class="text-2xl font-semibold mb-6">Discover Estates</h2>
+    <div id="projectGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 fade-in"></div>
+    <div class="text-center mt-10">
+      <button id="loadMoreBtn" class="load-more-btn px-6 py-3 bg-yellow-400 hover:bg-yellow-300 text-black font-semibold rounded-lg">Load More</button>
+    </div>
+  </section>
+
+  <!-- Favourites -->
+  <section class="max-w-7xl mx-auto px-4 pb-24">
+    <h2 class="text-2xl font-semibold mb-6">Favourites ❤️</h2>
+    <div id="favouritesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 fade-in"></div>
+  </section>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 flex items-center justify-center hidden modal z-50">
+    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 w-[90%] md:w-[600px] modal-content relative">
+      <button id="closeModal" class="absolute top-3 right-3 text-gray-600 dark:text-gray-300 hover:text-red-500">&times;</button>
+      <img id="modalImage" src="" alt="Property" class="w-full h-64 object-cover rounded-lg mb-4" />
+      <h2 id="modalTitle" class="text-2xl font-semibold mb-2"></h2>
+      <p id="modalLocation" class="text-sm opacity-70 mb-4"></p>
+      <p id="modalDescription" class="text-gray-700 dark:text-gray-300 mb-4">Beautifully designed luxury estate in the heart of your dream location. Schedule a viewing today.</p>
+      <a id="goToProjectBtn" href="project1.html" target="_blank" class="mt-2 inline-block px-6 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-300 transition">
+        Go to Project →
+      </a>
+    </div>
+  </div>
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-6">
+    <div class="max-w-7xl mx-auto text-center">
+      <p>&copy; 2023 Jaya Construction. All rights reserved.</p>
+      <div class="flex justify-center space-x-4 mt-4">
+        <a href="#" class="text-gray-400 hover:text-yellow-400">Privacy Policy</a>
+        <a href="#" class="text-gray-400 hover:text-yellow-400">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Scripts -->
+  <script>
+    const sampleImages = [
+      'https://images.unsplash.com/photo-1599423300746-b62533397364?auto=format&fit=crop&w=800&q=80', // Luxury villa
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80', // Mansion
+      'https://images.unsplash.com/photo-1572120360610-d971b9c7a542?auto=format&fit=crop&w=800&q=80', // Modern house
+      'https://images.unsplash.com/photo-1600607681945-15f0876c65e5?auto=format&fit=crop&w=800&q=80', // Penthouse
+      'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=800&q=80', // Interior
+      'https://images.unsplash.com/photo-1599423300746-b62533397364?auto=format&fit=crop&w=800&q=80', // Resort
+    ];
+
+    const projects = Array.from({ length: 18 }, (_, i) => ({
+      id: i + 1,
+      title: `Estate ${i + 1}`,
+      location: `Location ${i % 5 + 1}`,
+      type: ['villa', 'apartment', 'penthouse'][i % 3],
+      image: sampleImages[i % sampleImages.length],
+      url: `projects/project${i + 1}.html`
+    }));
+
+    let visibleCount = 6;
+    const favourites = new Set();
+    const grid = document.getElementById("projectGrid");
+    const favGrid = document.getElementById("favouritesGrid");
+    const loadBtn = document.getElementById("loadMoreBtn");
+    const searchInput = document.getElementById("searchInput");
+    const typeFilter = document.getElementById("typeFilter");
+
+    function renderCard(project, isFavourite = false) {
+      const card = document.createElement("div");
+      card.className = "bg-white dark:bg-gray-800 rounded-xl shadow project-card p-4 cursor-pointer transition relative";
+      card.innerHTML = `
+        <img src="${project.image}" class="rounded-lg mb-4 w-full h-48 object-cover" />
+        <h3 class="text-lg font-semibold">${project.title}</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400">${project.location} · ${project.type}</p>
+        <button class="absolute top-2 right-2 text-yellow-400 hover:text-yellow-300 text-xl favorite-btn">${favourites.has(project.id) ? '💝' : '❤️'}</button>
+      `;
+
+      card.querySelector(".favorite-btn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (favourites.has(project.id)) {
+          favourites.delete(project.id);
+        } else {
+          favourites.add(project.id);
+        }
+        displayProjects();
+      });
+
+      card.addEventListener("click", () => showModal(project));
+      return card;
+    }
+
+    function displayProjects() {
+      grid.innerHTML = "";
+      favGrid.innerHTML = "";
+      const keyword = searchInput.value.toLowerCase();
+      const type = typeFilter.value;
+
+      const filtered = projects.filter(p =>
+        p.location.toLowerCase().includes(keyword) &&
+        (type === "" || p.type === type)
+      );
+
+      filtered.slice(0, visibleCount).forEach(project => {
+        grid.appendChild(renderCard(project));
+      });
+
+      projects.forEach(project => {
+        if (favourites.has(project.id)) {
+          favGrid.appendChild(renderCard(project, true));
+        }
+      });
+
+      loadBtn.classList.toggle("hidden", filtered.length <= visibleCount);
+    }
+
+    function showModal(project) {
+      document.getElementById("modalTitle").textContent = project.title;
+      document.getElementById("modalLocation").textContent = `${project.location} · ${project.type}`;
+      document.getElementById("modalImage").src = project.image;
+      document.getElementById("goToProjectBtn").href = project.url;
+      document.getElementById("modal").classList.remove("hidden");
+    }
+
+    document.getElementById("closeModal").addEventListener("click", () => {
+      document.getElementById("modal").classList.add("hidden");
+    });
+
+    loadBtn.addEventListener("click", () => {
+      visibleCount += 6;
+      displayProjects();
+    });
+
+    searchInput.addEventListener("input", displayProjects);
+    typeFilter.addEventListener("change", displayProjects);
+
+    const toggle = document.getElementById("toggleMode");
+    const html = document.documentElement;
+    toggle.addEventListener("click", () => html.classList.toggle("dark"));
+
+    displayProjects();
+  </script>
+
+<!--Add the following script at the bottom of the web page (before </body></html>)-->
+<script type="text/javascript">function add_chatinline(){var hccid=98596433;var nt=document.createElement("script");nt.async=true;nt.src="https://mylivechat.com/chatinline.aspx?hccid="+hccid;var ct=document.getElementsByTagName("script")[0];ct.parentNode.insertBefore(nt,ct);}
+  add_chatinline();</script>
+</body>
+</html>
